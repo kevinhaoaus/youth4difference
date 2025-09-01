@@ -34,17 +34,17 @@ export default async function OrgDashboardPage() {
     .single()
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-black">
       <OrgHeader user={user} profile={profile} />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Your Events</h2>
-            <p className="text-gray-600">Manage your volunteering events</p>
+            <h2 className="text-2xl font-bold text-white md:text-3xl">Your Events</h2>
+            <p className="text-gray-300">Manage your volunteering events</p>
           </div>
           <Link href="/org/create-event">
-            <Button className="bg-indigo-600 hover:bg-indigo-700">
+            <Button className="bg-gradient-to-r from-pink-500 to-cyan-500 hover:scale-105 transition-all duration-300 w-full md:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Create Event
             </Button>

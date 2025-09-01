@@ -66,41 +66,44 @@ export default function CreateEventPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-black">
+      <header className="bg-white/5 backdrop-blur-xl border-b border-white/10">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
           <Link href="/org/dashboard">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 border border-white/20">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Create New Event</h1>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent md:text-3xl">
+            Create New Event
+          </h1>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
+          <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6 space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Event Title *
               </label>
-              <Input
+              <input
                 type="text"
                 placeholder="e.g., Beach Cleanup at Bondi"
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
                 required
+                className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Description
               </label>
               <textarea
-                className="w-full p-3 border rounded-md"
+                className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
                 placeholder="Tell students what they'll be doing and why it's awesome..."
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
@@ -109,78 +112,83 @@ export default function CreateEventPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Location *
               </label>
-              <Input
+              <input
                 type="text"
                 placeholder="Full address or venue name"
                 value={formData.location_address}
                 onChange={(e) => handleInputChange('location_address', e.target.value)}
                 required
+                className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Start Date & Time *
                 </label>
-                <Input
+                <input
                   type="datetime-local"
                   value={formData.start_datetime}
                   onChange={(e) => handleInputChange('start_datetime', e.target.value)}
                   required
+                  className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   End Date & Time *
                 </label>
-                <Input
+                <input
                   type="datetime-local"
                   value={formData.end_datetime}
                   onChange={(e) => handleInputChange('end_datetime', e.target.value)}
                   required
+                  className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Maximum Volunteers
               </label>
-              <Input
+              <input
                 type="number"
                 min="1"
                 max="100"
                 value={formData.max_volunteers}
                 onChange={(e) => handleInputChange('max_volunteers', parseInt(e.target.value))}
+                className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Social Tags
               </label>
-              <Input
+              <input
                 type="text"
                 placeholder="food provided, music, fun, networking (comma separated)"
                 value={formData.social_tags}
                 onChange={(e) => handleInputChange('social_tags', e.target.value)}
+                className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 Add fun elements to attract students (e.g., "free pizza", "music", "networking")
               </p>
             </div>
 
-            <Button 
+            <button 
               type="submit" 
-              className="w-full bg-indigo-600 hover:bg-indigo-700"
               disabled={loading}
+              className="w-full p-4 bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-semibold rounded-2xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed animate-glow"
             >
               {loading ? 'Creating Event...' : 'Create Event 🚀'}
-            </Button>
+            </button>
           </form>
         </div>
       </main>

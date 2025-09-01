@@ -106,12 +106,13 @@ export default function EventFeed({ userId }: { userId: string }) {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid gap-6">
+      <div className="p-4 md:p-0">
+        <div className="space-y-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3 md:space-y-0">
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-lg p-6 shadow-sm animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            <div key={i} className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 animate-pulse">
+              <div className="h-16 bg-white/10 rounded-xl mb-3"></div>
+              <div className="h-4 bg-white/10 rounded mb-2"></div>
+              <div className="h-3 bg-white/10 rounded w-2/3"></div>
             </div>
           ))}
         </div>
@@ -120,15 +121,13 @@ export default function EventFeed({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="px-5 pb-5">
+    <div className="p-4 md:p-0">
       <div className="mb-6">
-        <h2 className="text-white text-xl font-bold mb-2 flex items-center gap-2">
-          🔥 Events Near You
-        </h2>
-        <p className="text-gray-400 text-sm">Find opportunities that match your vibe</p>
+        <h2 className="text-white text-lg font-bold mb-2 md:text-2xl">Events Near You</h2>
+        <p className="text-gray-400 text-sm md:text-base">Find opportunities that match your vibe ✨</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3 md:space-y-0">
         {events.map((event) => {
           const isRegistered = registeredEvents.has(event.id)
           const eventDate = new Date(event.start_datetime)
@@ -138,7 +137,7 @@ export default function EventFeed({ userId }: { userId: string }) {
               key={event.id} 
               className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden
                          hover:bg-white/20 transition-all duration-300 cursor-pointer
-                         active:scale-95 hover:scale-[1.02]"
+                         active:scale-95 hover:scale-[1.02] md:hover:scale-105"
             >
               {/* Event Image */}
               <div className="h-24 bg-gradient-to-r from-pink-400 via-cyan-400 to-blue-400 animate-gradient-flow 
@@ -159,7 +158,7 @@ export default function EventFeed({ userId }: { userId: string }) {
               
               <div className="p-4 space-y-3">
                 <div className="flex justify-between items-start">
-                  <h3 className="text-white font-semibold leading-tight text-sm">
+                  <h3 className="text-white font-semibold leading-tight text-sm md:text-base">
                     {event.title}
                   </h3>
                   {isRegistered ? (
@@ -181,23 +180,25 @@ export default function EventFeed({ userId }: { userId: string }) {
                   )}
                 </div>
 
-                <p className="text-gray-300 text-xs line-clamp-2">{event.description}</p>
+                <p className="text-gray-300 text-xs line-clamp-2 md:text-sm">{event.description}</p>
                 
-                <div className="flex justify-between items-center text-xs text-gray-400 mb-3">
-                  <span className="flex items-center gap-1">
-                    📅 {eventDate.toLocaleDateString('en-AU', { 
+                <div className="flex flex-col gap-2 text-xs text-gray-400 mb-3 md:text-sm">
+                  <span className="flex items-center gap-2">
+                    <Calendar className="h-3 w-3" />
+                    {eventDate.toLocaleDateString('en-AU', { 
                       weekday: 'short', 
                       month: 'short', 
                       day: 'numeric' 
                     })} {eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                   </span>
-                  <span className="flex items-center gap-1">
-                    📍 {event.location_address.split(',')[0]}
+                  <span className="flex items-center gap-2">
+                    <MapPin className="h-3 w-3" />
+                    {event.location_address.split(',')[0]}
                   </span>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {event.social_tags?.slice(0, 3).map((tag, index) => {
+                  {event.social_tags?.slice(0, 2).map((tag, index) => {
                     const colors = [
                       'bg-pink-500/20 border-pink-500/40 text-pink-400',
                       'bg-cyan-500/20 border-cyan-500/40 text-cyan-400',
@@ -217,7 +218,7 @@ export default function EventFeed({ userId }: { userId: string }) {
 
                 <div className="flex justify-between items-center">
                   <div className="text-cyan-400 text-xs flex items-center gap-1">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                    <Users className="h-3 w-3" />
                     {event._count?.registrations || 0}/{event.max_volunteers} joined
                   </div>
                   <div className="text-gray-500 text-xs">
@@ -228,10 +229,9 @@ export default function EventFeed({ userId }: { userId: string }) {
             </div>
           )
         })}
-      </div>
 
         {events.length === 0 && (
-          <div className="text-center py-16">
+          <div className="text-center py-16 md:col-span-3">
             <div className="text-6xl mb-4 animate-bounce">🌟</div>
             <h3 className="text-xl font-semibold text-white mb-2">No events yet</h3>
             <p className="text-gray-400">New opportunities are being added daily!</p>

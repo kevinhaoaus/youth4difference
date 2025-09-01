@@ -32,8 +32,8 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-black overflow-hidden">
-      {/* Phone Frame Container */}
-      <div className="flex items-center justify-center min-h-screen p-4">
+      {/* Mobile: Phone Frame Container */}
+      <div className="md:hidden flex items-center justify-center min-h-screen p-4">
         <div className="w-[375px] h-[812px] bg-black rounded-[40px] p-2 shadow-2xl shadow-purple-500/20">
           <div className="w-full h-full bg-gradient-to-b from-slate-900 to-black rounded-[32px] overflow-hidden relative">
             
@@ -51,28 +51,23 @@ export default async function DashboardPage() {
                 <div className="text-xs font-semibold">Events</div>
               </div>
               <div className="flex flex-col items-center text-gray-600">
-                <div className="w-7 h-7 bg-current rounded-lg mb-1 relative">
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-pink-500 rounded-full border-2 border-black"></div>
-                </div>
-                <div className="text-xs font-semibold">Friends</div>
-              </div>
-              <div className="flex flex-col items-center text-gray-600">
                 <div className="w-7 h-7 bg-current rounded-lg mb-1"></div>
-                <div className="text-xs font-semibold">My Vibe</div>
+                <div className="text-xs font-semibold">My Events</div>
               </div>
               <div className="flex flex-col items-center text-gray-600">
                 <div className="w-7 h-7 bg-current rounded-lg mb-1"></div>
                 <div className="text-xs font-semibold">Profile</div>
               </div>
             </div>
-
-            {/* Floating Action Button */}
-            <div className="absolute bottom-24 right-5 w-14 h-14 bg-gradient-to-r from-pink-500 to-cyan-500 
-                           rounded-full flex items-center justify-center text-white text-xl font-bold cursor-pointer 
-                           shadow-2xl hover:scale-110 transition-all duration-300 animate-pulse-slow">
-              +
-            </div>
           </div>
+        </div>
+      </div>
+
+      {/* Desktop: Full Layout */}
+      <div className="hidden md:block">
+        <DashboardHeader user={user} profile={profile} />
+        <div className="container mx-auto px-6 py-8">
+          <EventFeed userId={user.id} />
         </div>
       </div>
     </div>
