@@ -4,7 +4,8 @@ import { User } from '@supabase/supabase-js'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { LogOut, MapPin } from 'lucide-react'
+import { LogOut, MapPin, Calendar } from 'lucide-react'
+import Link from 'next/link'
 
 interface DashboardHeaderProps {
   user: User
@@ -41,14 +42,24 @@ export default function DashboardHeader({ user, profile }: DashboardHeaderProps)
             </p>
           </div>
           
-          <button 
-            onClick={handleSignOut}
-            className="p-2 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 
-                     text-white hover:bg-white/20 transition-all duration-300 md:px-4 md:py-2 md:rounded-xl"
-          >
-            <LogOut className="h-4 w-4 md:mr-2" />
-            <span className="hidden md:inline">Sign Out</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <Link href="/events">
+              <button className="p-2 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 
+                               text-white hover:bg-white/20 transition-all duration-300 md:px-4 md:py-2 md:rounded-xl">
+                <Calendar className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">All Events</span>
+              </button>
+            </Link>
+            
+            <button 
+              onClick={handleSignOut}
+              className="p-2 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 
+                       text-white hover:bg-white/20 transition-all duration-300 md:px-4 md:py-2 md:rounded-xl"
+            >
+              <LogOut className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Sign Out</span>
+            </button>
+          </div>
         </div>
         
         <div className="p-3 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 flex items-center gap-2 text-white">
