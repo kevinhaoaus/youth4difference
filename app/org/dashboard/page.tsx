@@ -44,7 +44,7 @@ export default async function OrgDashboardPage() {
             <p className="text-gray-300">Manage your volunteering events</p>
           </div>
           <Link href="/org/create-event">
-            <Button className="bg-gradient-to-r from-pink-500 to-cyan-500 hover:scale-105 transition-all duration-300 w-full md:w-auto">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 transition-all duration-300 w-full md:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Create Event
             </Button>

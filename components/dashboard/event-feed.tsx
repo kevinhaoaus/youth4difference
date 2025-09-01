@@ -123,8 +123,8 @@ export default function EventFeed({ userId }: { userId: string }) {
   return (
     <div className="p-4 md:p-0">
       <div className="mb-6">
-        <h2 className="text-white text-lg font-bold mb-2 md:text-2xl">Events Near You</h2>
-        <p className="text-gray-400 text-sm md:text-base">Find opportunities that match your vibe ✨</p>
+        <h2 className="text-white text-lg font-bold mb-2 md:text-2xl">Available Opportunities</h2>
+        <p className="text-gray-400 text-sm md:text-base">Discover volunteer events in your community</p>
       </div>
 
       <div className="space-y-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3 md:space-y-0">
@@ -140,20 +140,13 @@ export default function EventFeed({ userId }: { userId: string }) {
                          active:scale-95 hover:scale-[1.02] md:hover:scale-105"
             >
               {/* Event Image */}
-              <div className="h-24 bg-gradient-to-r from-pink-400 via-cyan-400 to-blue-400 animate-gradient-flow 
-                             flex items-center justify-center text-white text-lg font-bold relative">
-                {event.title.includes('Beach') && '🌊'}
-                {event.title.includes('Run') && '🎪'}
-                {event.title.includes('Cook') && '🍳'}
-                {event.title.includes('Clean') && '🧹'}
-                {!event.title.match(/(Beach|Run|Cook|Clean)/i) && '✨'}
-                <span className="ml-2">
-                  {event.title.includes('Beach') && 'Beach Cleanup'}
-                  {event.title.includes('Run') && 'Fun Run'}
-                  {event.title.includes('Cook') && 'Cooking'}
-                  {event.title.includes('Clean') && 'Cleanup'}
-                  {!event.title.match(/(Beach|Run|Cook|Clean)/i) && 'Event'}
-                </span>
+              <div className="h-24 bg-gradient-to-r from-indigo-500 to-blue-600 
+                             flex items-center justify-center text-white text-lg font-semibold relative">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </div>
               </div>
               
               <div className="p-4 space-y-3">
@@ -165,17 +158,17 @@ export default function EventFeed({ userId }: { userId: string }) {
                     <button
                       onClick={() => handleLeaveEvent(event.id)}
                       className="px-3 py-1 bg-red-500/20 border border-red-500/40 text-red-400 
-                               text-xs rounded-full font-semibold shrink-0 hover:bg-red-500/30 transition-all"
+                               text-xs rounded-lg font-medium shrink-0 hover:bg-red-500/30 transition-all"
                     >
-                      ✓ Joined
+                      Registered
                     </button>
                   ) : (
                     <button
                       onClick={() => handleJoinEvent(event.id)}
-                      className="px-3 py-1 bg-gradient-to-r from-pink-500 to-cyan-500 text-white 
-                               text-xs font-semibold rounded-full shrink-0 hover:scale-105 transition-all duration-300 animate-glow"
+                      className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white 
+                               text-xs font-medium rounded-lg shrink-0 transition-all duration-300"
                     >
-                      Join Squad
+                      Register
                     </button>
                   )}
                 </div>
@@ -232,9 +225,13 @@ export default function EventFeed({ userId }: { userId: string }) {
 
         {events.length === 0 && (
           <div className="text-center py-16 md:col-span-3">
-            <div className="text-6xl mb-4 animate-bounce">🌟</div>
-            <h3 className="text-xl font-semibold text-white mb-2">No events yet</h3>
-            <p className="text-gray-400">New opportunities are being added daily!</p>
+            <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a2 2 0 012 2v1a2 2 0 01-2 2h-16a2 2 0 01-2-2v-1a2 2 0 012-2h3z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">No events available</h3>
+            <p className="text-gray-400">Check back soon for new volunteer opportunities</p>
           </div>
         )}
       </div>

@@ -146,7 +146,7 @@ export default function EventsList({ orgId }: { orgId: string }) {
               </div>
               <div className="w-full bg-gray-600 rounded-full h-2">
                 <div 
-                  className="bg-gradient-to-r from-pink-500 to-cyan-500 h-2 rounded-full transition-all duration-300" 
+                  className="bg-indigo-500 h-2 rounded-full transition-all duration-300" 
                   style={{ width: `${(registrationCount / event.max_volunteers) * 100}%` }}
                 ></div>
               </div>
@@ -157,11 +157,15 @@ export default function EventsList({ orgId }: { orgId: string }) {
 
       {events.length === 0 && (
         <div className="text-center py-16 md:col-span-2 lg:col-span-3">
-          <div className="text-6xl mb-6 animate-bounce">📅</div>
+          <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a2 2 0 012 2v1a2 2 0 01-2 2h-16a2 2 0 01-2-2v-1a2 2 0 012-2h3z" />
+            </svg>
+          </div>
           <h3 className="text-xl font-semibold text-white mb-3">No events created yet</h3>
-          <p className="text-gray-300 mb-6">Create your first event to start finding volunteers!</p>
+          <p className="text-gray-300 mb-6">Create your first event to start connecting with volunteers</p>
           <Link href="/org/create-event">
-            <Button className="bg-gradient-to-r from-pink-500 to-cyan-500 hover:scale-105 transition-all duration-300">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 transition-all duration-300">
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Event
             </Button>

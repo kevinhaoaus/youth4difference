@@ -32,12 +32,12 @@ export default function DashboardHeader({ user, profile }: DashboardHeaderProps)
       <header className="p-5 pb-3 bg-white/5 backdrop-blur-xl border-b border-white/10 md:bg-white/10">
         <div className="flex justify-between items-start mb-3">
           <div>
-            <h1 className="text-white text-2xl font-black bg-gradient-to-r from-pink-400 via-cyan-400 to-blue-400 
-                         bg-clip-text text-transparent animate-gradient md:text-3xl">
+            <h1 className="text-white text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 
+                         bg-clip-text text-transparent md:text-3xl">
               VolunteerVibe
             </h1>
             <p className="text-gray-300 text-sm">
-              Hey {profile?.first_name || 'there'}! 👋
+              Welcome back, {profile?.first_name || 'User'}
             </p>
           </div>
           

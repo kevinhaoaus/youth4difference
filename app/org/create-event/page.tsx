@@ -75,7 +75,7 @@ export default function CreateEventPage() {
               Back
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent md:text-3xl">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent md:text-3xl">
             Create New Event
           </h1>
         </div>
@@ -185,9 +185,9 @@ export default function CreateEventPage() {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full p-4 bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-semibold rounded-2xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed animate-glow"
+              className="w-full p-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating Event...' : 'Create Event 🚀'}
+              {loading ? 'Creating Event...' : 'Create Event'}
             </button>
           </form>
         </div>

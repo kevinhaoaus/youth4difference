@@ -73,12 +73,12 @@ export default function StudentAuthForm() {
   return (
     <div className="w-full max-w-sm mx-auto space-y-6 p-6">
       <div className="text-center">
-        <h1 className="text-2xl font-black text-white bg-gradient-to-r from-pink-400 via-cyan-400 to-blue-400 
-                     bg-clip-text text-transparent animate-gradient mb-2">
-          {isLogin ? 'Welcome Back!' : 'Join the Vibe'}
+        <h1 className="text-2xl font-bold text-white bg-gradient-to-r from-blue-400 to-indigo-500 
+                     bg-clip-text text-transparent mb-2">
+          {isLogin ? 'Welcome Back' : 'Create Account'}
         </h1>
         <p className="text-gray-300 text-sm">
-          {isLogin ? 'Sign in to find events near you' : 'Create your student account ✨'}
+          {isLogin ? 'Sign in to find events near you' : 'Create your student account'}
         </p>
       </div>
 
@@ -150,11 +150,11 @@ export default function StudentAuthForm() {
         <button 
           type="submit" 
           disabled={loading}
-          className="w-full p-4 bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-semibold 
-                   rounded-2xl hover:scale-105 transition-all duration-300 disabled:opacity-50 
-                   disabled:cursor-not-allowed animate-glow"
+          className="w-full p-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold 
+                   rounded-xl transition-all duration-300 disabled:opacity-50 
+                   disabled:cursor-not-allowed"
         >
-          {loading ? 'Loading...' : (isLogin ? 'Sign In 🚀' : 'Join Squad ✨')}
+          {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
         </button>
       </form>
 
@@ -165,8 +165,8 @@ export default function StudentAuthForm() {
           className="text-cyan-400 hover:text-cyan-300 text-sm transition-colors duration-300"
         >
           {isLogin
-            ? "Don't have an account? Join the vibe"
-            : 'Already vibing with us? Sign in'}
+            ? "Don't have an account? Sign up"
+            : 'Already have an account? Sign in'}
         </button>
       </div>
     </div>

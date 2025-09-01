@@ -24,7 +24,7 @@ export default function OrgHeader({ user, profile }: OrgHeaderProps) {
     <header className="bg-white/5 backdrop-blur-xl border-b border-white/10">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent md:text-3xl">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent md:text-3xl">
             VolunteerVibe
           </h1>
           <p className="text-sm text-gray-300 flex items-center gap-2">
