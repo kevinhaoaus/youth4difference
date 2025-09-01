@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import UserProfile from '@/components/ui/user-profile'
 
 export default function HomePage() {
   return (
@@ -15,8 +16,16 @@ export default function HomePage() {
               <span>🔋 100%</span>
             </div>
 
+            {/* Mobile Header with User Profile */}
+            <div className="p-4 flex justify-between items-center border-b border-white/10">
+              <h2 className="text-lg font-bold text-white bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+                VolunteerVibe
+              </h2>
+              <UserProfile />
+            </div>
+
             {/* App Content */}
-            <div className="h-[calc(100%-44px)] bg-gradient-to-b from-slate-900/50 to-black overflow-y-auto flex flex-col justify-center items-center p-6 text-center">
+            <div className="flex-1 bg-gradient-to-b from-slate-900/50 to-black overflow-y-auto flex flex-col justify-center items-center p-6 text-center">
               <h1 className="text-white text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 
                            bg-clip-text text-transparent mb-4">
                 VolunteerVibe
@@ -52,13 +61,11 @@ export default function HomePage() {
                          bg-clip-text text-transparent">
             VolunteerVibe
           </div>
-          <div className="space-x-4">
-            <Link href="/auth/login">
-              <Button variant="ghost" className="text-white hover:bg-white/10">Student Login</Button>
+          <div className="flex items-center gap-4">
+            <Link href="/events">
+              <Button variant="ghost" className="text-white hover:bg-white/10">Browse Events</Button>
             </Link>
-            <Link href="/auth/org-login">
-              <Button variant="ghost" className="text-white hover:bg-white/10">Organization Login</Button>
-            </Link>
+            <UserProfile />
           </div>
         </nav>
 

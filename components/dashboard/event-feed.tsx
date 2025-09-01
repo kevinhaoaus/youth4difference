@@ -76,7 +76,7 @@ export default function EventFeed({ userId }: { userId: string }) {
 
       if (error) throw error
 
-      setRegisteredEvents(prev => new Set([...prev, eventId]))
+      setRegisteredEvents(prev => new Set([...Array.from(prev), eventId]))
       toast.success('Successfully joined event! 🎉')
     } catch (error: any) {
       toast.error(error.message || 'Failed to join event')

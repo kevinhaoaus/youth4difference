@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { Calendar, MapPin, Users, Search, Filter, Clock, Tag, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import UserProfile from '@/components/ui/user-profile'
 
 interface Event {
   id: string
@@ -47,41 +48,66 @@ export default function EventsPage() {
   }, [events, searchTerm, locationFilter, timeFilter, selectedTags])
 
   const fetchEvents = async () => {
-    const { data, error } = await supabase
-      .from('events')
-      .select(`
-        *,
-        organization_profiles!inner(org_name)
-      `)
-      .eq('status', 'published')
-      .gte('start_datetime', new Date().toISOString())
-      .order('start_datetime', { ascending: true })
+    try {
+      // First, try to get events with organization data
+      const { data: eventsData, error: eventsError } = await supabase
+        .from('events')
+        .select('*')
+        .eq('status', 'published')
+        .gte('start_datetime', new Date().toISOString())
+        .order('start_datetime', { ascending: true })
 
-    if (error) {
+      if (eventsError) {
+        throw eventsError
+      }
+
+      // Then get organization profiles separately
+      const orgIds = Array.from(new Set(eventsData?.map(event => event.org_id) || []))
+      const { data: orgsData, error: orgsError } = await supabase
+        .from('organization_profiles')
+        .select('user_id, org_name')
+        .in('user_id', orgIds)
+
+      if (orgsError) {
+        console.warn('Could not load organization data:', orgsError)
+      }
+
+      // Combine the data
+      const orgsMap = new Map()
+      orgsData?.forEach(org => {
+        orgsMap.set(org.user_id, org)
+      })
+
+      const eventsWithOrgs = eventsData?.map(event => ({
+        ...event,
+        organization_profiles: orgsMap.get(event.org_id) || { org_name: 'Unknown Organization' }
+      })) || []
+
+      setEvents(eventsWithOrgs)
+      
+      // Extract all unique tags
+      const tags = new Set<string>()
+      eventsWithOrgs.forEach(event => {
+        event.social_tags?.forEach((tag: string) => tags.add(tag))
+      })
+      setAllTags(Array.from(tags))
+      
+      setLoading(false)
+    } catch (error: any) {
       console.error('Error loading events:', error)
       setDbError(error.message)
       if (error.message.includes('relation "events" does not exist')) {
-        setDbError('Database not set up. Please configure your Supabase database with the required tables.')
-      } else if (error.message.includes('JWT')) {
-        setDbError('Database authentication error. Please check your Supabase configuration.')
+        setDbError('Database tables missing. Please run the SQL setup script in your Supabase SQL Editor to create required tables.')
+      } else if (error.message.includes('JWT') || error.message.includes('permission') || error.message.includes('policy')) {
+        setDbError('Database permission error. Please run the fix-events-access.sql file in your Supabase SQL Editor to set up proper access policies.')
+      } else if (error.message.includes('Failed to fetch')) {
+        setDbError('Database connection failed. Please check your Supabase configuration and internet connection.')
       } else {
         setDbError(`Database error: ${error.message}`)
       }
       toast.error(`Failed to load events: ${error.message}`)
       setLoading(false)
-      return
     }
-
-    setEvents(data || [])
-    
-    // Extract all unique tags
-    const tags = new Set<string>()
-    data?.forEach(event => {
-      event.social_tags?.forEach(tag => tags.add(tag))
-    })
-    setAllTags(Array.from(tags))
-    
-    setLoading(false)
   }
 
   const fetchUserRegistrations = async () => {
@@ -184,7 +210,7 @@ export default function EventsPage() {
 
       if (error) throw error
 
-      setRegisteredEvents(prev => new Set([...prev, eventId]))
+      setRegisteredEvents(prev => new Set([...Array.from(prev), eventId]))
       toast.success('Successfully registered for event! 🎉')
     } catch (error: any) {
       toast.error(error.message || 'Failed to register for event')
@@ -389,9 +415,12 @@ export default function EventsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">Database Connection Error</h3>
-                  <p className="text-gray-400 text-sm">{dbError}</p>
-                  <p className="text-gray-500 text-xs mt-2">Please check the console for more details</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">Database Setup Required</h3>
+                  <p className="text-gray-400 text-sm mb-2">{dbError}</p>
+                  {dbError.includes('fix-events-access.sql') && (
+                    <p className="text-cyan-400 text-xs">Run the fix-events-access.sql file in your project root</p>
+                  )}
+                  <p className="text-gray-500 text-xs mt-2">Check console for more details</p>
                 </div>
               )}
             </div>
@@ -402,15 +431,18 @@ export default function EventsPage() {
       {/* Desktop */}
       <div className="hidden md:block">
         <div className="container mx-auto px-6 py-8">
-          <div className="flex items-center gap-4 mb-8">
-            <Link href="/dashboard">
-              <button className="p-3 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 text-white hover:bg-white/20 transition-all duration-300">
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-            </Link>
-            <h1 className="text-4xl font-bold text-white bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
-              All Events
-            </h1>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <Link href="/">
+                <button className="p-3 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 text-white hover:bg-white/20 transition-all duration-300">
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
+              </Link>
+              <h1 className="text-4xl font-bold text-white bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+                All Events
+              </h1>
+            </div>
+            <UserProfile />
           </div>
 
           {/* Desktop Filters */}
@@ -618,8 +650,11 @@ export default function EventsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-semibold text-white mb-3">Database Connection Error</h3>
+                <h3 className="text-2xl font-semibold text-white mb-3">Database Setup Required</h3>
                 <p className="text-gray-400 mb-2">{dbError}</p>
+                {dbError.includes('fix-events-access.sql') && (
+                  <p className="text-cyan-400 text-sm mb-2">Run the fix-events-access.sql file in your project root</p>
+                )}
                 <p className="text-gray-500 text-sm">Please check the browser console for more details</p>
               </div>
             )}

@@ -24,7 +24,7 @@ export default function StudentAuthForm() {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
@@ -32,6 +32,9 @@ export default function StudentAuthForm() {
         if (error) throw error
         
         toast.success('Welcome back!')
+        
+        // Refresh the router to update auth state and redirect
+        router.refresh()
         router.push('/dashboard')
       } else {
         // Sign up
@@ -60,6 +63,9 @@ export default function StudentAuthForm() {
             })
 
           toast.success('Account created successfully!')
+          
+          // Refresh the router to update auth state and redirect
+          router.refresh()
           router.push('/dashboard')
         }
       }

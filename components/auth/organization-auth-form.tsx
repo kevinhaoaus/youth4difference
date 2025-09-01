@@ -34,7 +34,9 @@ export default function OrganizationAuthForm() {
         if (error) throw error
         
         toast.success('Welcome back!')
-        router.push('/org/dashboard')
+        setTimeout(() => {
+          window.location.href = '/org/dashboard'
+        }, 1000)
       } else {
         // Sign up
         const { data, error } = await supabase.auth.signUp({
@@ -64,7 +66,9 @@ export default function OrganizationAuthForm() {
             })
 
           toast.success('Organization account created successfully!')
-          router.push('/org/dashboard')
+          setTimeout(() => {
+            window.location.href = '/org/dashboard'
+          }, 1000)
         }
       }
     } catch (error: any) {

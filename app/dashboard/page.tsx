@@ -12,12 +12,27 @@ export default async function DashboardPage() {
     redirect('/auth/login')
   }
 
-  // Get user type
-  const { data: userData } = await supabase
+  // Get user type - if doesn't exist, assume student and create it
+  let { data: userData } = await supabase
     .from('users')
     .select('user_type')
     .eq('id', user.id)
     .single()
+
+  // If user record doesn't exist, create it as student
+  if (!userData) {
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert({
+        id: user.id,
+        email: user.email!,
+        user_type: 'student'
+      })
+    
+    if (!insertError) {
+      userData = { user_type: 'student' }
+    }
+  }
 
   if (userData?.user_type !== 'student') {
     redirect('/org/dashboard')

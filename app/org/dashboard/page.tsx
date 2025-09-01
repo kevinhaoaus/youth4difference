@@ -15,12 +15,27 @@ export default async function OrgDashboardPage() {
     redirect('/auth/org-login')
   }
 
-  // Get user type
-  const { data: userData } = await supabase
+  // Get user type - if doesn't exist, assume organization and create it
+  let { data: userData } = await supabase
     .from('users')
     .select('user_type')
     .eq('id', user.id)
     .single()
+
+  // If user record doesn't exist, create it as organization
+  if (!userData) {
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert({
+        id: user.id,
+        email: user.email!,
+        user_type: 'organization'
+      })
+    
+    if (!insertError) {
+      userData = { user_type: 'organization' }
+    }
+  }
 
   if (userData?.user_type !== 'organization') {
     redirect('/dashboard')
