@@ -1,5 +1,8 @@
 import './globals.css'
 import { Toaster } from 'sonner'
+import { Inter } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'VolunteerVibe - Social Volunteering Made Easy',
@@ -15,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={inter.className}>
+      <body className="bg-black text-white min-h-screen">
         {children}
         <Toaster position="top-center" />
       </body>
