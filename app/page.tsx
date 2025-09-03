@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import UserProfile from '@/components/ui/user-profile'
+import { LoginDropdown } from '@/components/ui/login-dropdown'
 import { User, Building } from 'lucide-react'
 
 export default function HomePage() {
@@ -13,18 +13,7 @@ export default function HomePage() {
           <h2 className="text-lg font-bold text-white">
             VolunteerVibe
           </h2>
-          <div className="flex items-center gap-2">
-            <Link href="/auth/login">
-              <Button size="sm" variant="outline" className="border-zinc-800 text-white hover:bg-zinc-900 p-2">
-                <User className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/auth/org-login">
-              <Button size="sm" className="bg-white text-black hover:bg-zinc-200 p-2">
-                <Building className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
+          <LoginDropdown />
         </div>
 
         {/* Mobile Content */}
@@ -64,22 +53,7 @@ export default function HomePage() {
             <Link href="/events">
               <Button variant="ghost" className="text-zinc-400 hover:text-white hover:bg-zinc-900">Browse Events</Button>
             </Link>
-            <div className="flex items-center gap-2">
-              <Link href="/auth/login">
-                <Button size="sm" variant="outline" className="border-zinc-800 text-white hover:bg-zinc-900">
-                  <User className="h-4 w-4 mr-2" />
-                  <span className="hidden lg:inline">Member Login</span>
-                  <span className="lg:hidden">Member</span>
-                </Button>
-              </Link>
-              <Link href="/auth/org-login">
-                <Button size="sm" className="bg-white text-black hover:bg-zinc-200">
-                  <Building className="h-4 w-4 mr-2" />
-                  <span className="hidden lg:inline">Organization Login</span>
-                  <span className="lg:hidden">Org</span>
-                </Button>
-              </Link>
-            </div>
+            <LoginDropdown />
           </div>
         </nav>
 
