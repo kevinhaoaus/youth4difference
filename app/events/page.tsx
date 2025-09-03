@@ -81,11 +81,11 @@ export default function EventsPage() {
         throw eventsError
       }
 
-      // Then get organization profiles separately
+      // Then get organization profiles separately with contact details
       const orgIds = Array.from(new Set(eventsData?.map(event => event.org_id) || []))
       const { data: orgsData, error: orgsError } = await supabase
         .from('organization_profiles')
-        .select('user_id, org_name')
+        .select('user_id, org_name, contact_email, contact_phone')
         .in('user_id', orgIds)
 
       if (orgsError) {

@@ -5,12 +5,17 @@ interface EventCardProps {
     id: string
     title: string
     description: string
+    short_description?: string
+    category?: string
+    volunteer_roles?: string[]
     location_address: string
     start_datetime: string
     max_volunteers: number
     social_tags?: string[]
     organization_profiles: {
       org_name: string
+      contact_email?: string
+      contact_phone?: string
     }
     _count?: {
       registrations: number
@@ -23,6 +28,20 @@ interface EventCardProps {
   variant?: 'mobile' | 'desktop' | 'feed'
 }
 
+const getCategoryBadge = (category?: string) => {
+  const badges: { [key: string]: { icon: string; color: string } } = {
+    environment: { icon: '🌱', color: 'bg-green-900 text-green-300' },
+    education: { icon: '📚', color: 'bg-blue-900 text-blue-300' },
+    community: { icon: '🏘️', color: 'bg-purple-900 text-purple-300' },
+    health: { icon: '❤️', color: 'bg-red-900 text-red-300' },
+    animals: { icon: '🐾', color: 'bg-yellow-900 text-yellow-300' },
+    arts: { icon: '🎨', color: 'bg-pink-900 text-pink-300' },
+    sports: { icon: '⚽', color: 'bg-orange-900 text-orange-300' },
+    other: { icon: '📌', color: 'bg-gray-900 text-gray-300' }
+  }
+  return badges[category || 'other'] || badges.other
+}
+
 export function EventCard({ 
   event, 
   isRegistered = false, 
@@ -33,6 +52,8 @@ export function EventCard({
 }: EventCardProps) {
   const eventDate = new Date(event.start_datetime)
   const regCount = registrationCount ?? event._count?.registrations ?? 0
+  const categoryBadge = getCategoryBadge(event.category)
+  const displayDescription = event.short_description || event.description
 
   const handleAction = () => {
     if (isRegistered && onUnregister) {
@@ -55,10 +76,19 @@ export function EventCard({
         </div>
         
         <div className="p-6">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-primary text-lg leading-tight flex-1 mr-3">
-              {event.title}
-            </h3>
+          <div className="flex justify-between items-start mb-2">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-primary text-lg leading-tight">
+                  {event.title}
+                </h3>
+                {event.category && (
+                  <span className={`text-xs px-2 py-1 rounded-full ${categoryBadge.color}`}>
+                    {categoryBadge.icon} {event.category}
+                  </span>
+                )}
+              </div>
+            </div>
             <button
               onClick={handleAction}
               className={`text-sm ${
@@ -71,7 +101,23 @@ export function EventCard({
             </button>
           </div>
 
-          <p className="text-secondary text-sm mb-4 line-clamp-3">{event.description}</p>
+          <p className="text-secondary text-sm mb-4 line-clamp-3">{displayDescription}</p>
+          
+          {event.volunteer_roles && event.volunteer_roles.length > 0 && (
+            <div className="mb-3">
+              <p className="text-xs font-semibold text-muted mb-1">Volunteer Roles:</p>
+              <div className="flex flex-wrap gap-1">
+                {event.volunteer_roles.slice(0, 3).map((role, index) => (
+                  <span key={index} className="text-xs bg-muted/10 px-2 py-1 rounded">
+                    {role}
+                  </span>
+                ))}
+                {event.volunteer_roles.length > 3 && (
+                  <span className="text-xs text-muted">+{event.volunteer_roles.length - 3} more</span>
+                )}
+              </div>
+            </div>
+          )}
           
           <div className="space-y-3 text-sm text-muted mb-4">
             <div className="flex items-center gap-2">
@@ -116,9 +162,20 @@ export function EventCard({
             </div>
           )}
 
-          <div className="text-subtle text-sm mb-4">
-            by {event.organization_profiles.org_name}
+          <div className="text-subtle text-sm mb-2">
+            by <span className="font-semibold">{event.organization_profiles.org_name}</span>
           </div>
+          
+          {(event.organization_profiles?.contact_email || event.organization_profiles?.contact_phone) && (
+            <div className="text-xs text-muted mb-4 space-y-1">
+              {event.organization_profiles.contact_email && (
+                <div>📧 {event.organization_profiles.contact_email}</div>
+              )}
+              {event.organization_profiles.contact_phone && (
+                <div>📱 {event.organization_profiles.contact_phone}</div>
+              )}
+            </div>
+          )}
 
           {/* Progress bar */}
           <div className="progress-container">

@@ -14,12 +14,16 @@ export default function CreateEventPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    short_description: '',
+    category: 'community',
     location_address: '',
     start_datetime: '',
     end_datetime: '',
     max_volunteers: 10,
+    volunteer_roles: '',
     social_tags: '',
   })
+  const [charCount, setCharCount] = useState(0)
   
   const router = useRouter()
   const supabase = createClient()
@@ -36,6 +40,11 @@ export default function CreateEventPage() {
         .split(',')
         .map(tag => tag.trim())
         .filter(tag => tag.length > 0)
+      
+      const rolesArray = formData.volunteer_roles
+        .split(',')
+        .map(role => role.trim())
+        .filter(role => role.length > 0)
 
       const { error } = await supabase
         .from('events')
@@ -43,10 +52,13 @@ export default function CreateEventPage() {
           org_id: user.id,
           title: formData.title,
           description: formData.description,
+          short_description: formData.short_description,
+          category: formData.category,
           location_address: formData.location_address,
           start_datetime: formData.start_datetime,
           end_datetime: formData.end_datetime,
           max_volunteers: formData.max_volunteers,
+          volunteer_roles: rolesArray,
           social_tags: tagsArray,
         })
 
@@ -66,16 +78,16 @@ export default function CreateEventPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-black">
-      <header className="bg-white/5 backdrop-blur-xl border-b border-white/10">
+    <div className="min-h-screen bg-black">
+      <header className="bg-zinc-900 border-b border-zinc-800">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
           <Link href="/org/dashboard">
-            <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 border border-white/20">
+            <Button variant="secondary" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent md:text-3xl">
+          <h1 className="text-2xl font-bold text-white md:text-3xl">
             Create New Event
           </h1>
         </div>
@@ -83,7 +95,7 @@ export default function CreateEventPage() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6 space-y-6">
+          <form onSubmit={handleSubmit} className="bg-zinc-900 rounded border border-zinc-800 p-6 space-y-6">
             <div>
               <label className="block text-sm font-medium text-white mb-2">
                 Event Title *
@@ -94,21 +106,78 @@ export default function CreateEventPage() {
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
                 required
-                className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-white mb-2">
-                Description
+                Category *
+              </label>
+              <select
+                value={formData.category}
+                onChange={(e) => handleInputChange('category', e.target.value)}
+                required
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-white transition-all"
+              >
+                <option value="environment">🌱 Environment</option>
+                <option value="education">📚 Education</option>
+                <option value="community">🏘️ Community</option>
+                <option value="health">❤️ Health</option>
+                <option value="animals">🐾 Animals</option>
+                <option value="arts">🎨 Arts</option>
+                <option value="sports">⚽ Sports</option>
+                <option value="other">📌 Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">
+                Short Description * <span className="text-zinc-500">({charCount}/500)</span>
               </label>
               <textarea
-                className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
-                placeholder="Tell students what they'll be doing and why it's awesome..."
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
+                placeholder="Brief overview of the event (max 500 characters)..."
+                value={formData.short_description}
+                onChange={(e) => {
+                  if (e.target.value.length <= 500) {
+                    handleInputChange('short_description', e.target.value)
+                    setCharCount(e.target.value.length)
+                  }
+                }}
+                required
+                rows={3}
+                maxLength={500}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">
+                Full Description
+              </label>
+              <textarea
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
+                placeholder="Detailed information about the event..."
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 rows={4}
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">
+                Volunteer Roles Needed
+              </label>
+              <input
+                type="text"
+                placeholder="e.g., Event Setup, Registration Desk, Photography (comma separated)"
+                value={formData.volunteer_roles}
+                onChange={(e) => handleInputChange('volunteer_roles', e.target.value)}
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
+              />
+              <p className="text-xs text-zinc-500 mt-1">
+                Specify the roles volunteers will fill at your event
+              </p>
             </div>
 
             <div>
@@ -121,7 +190,7 @@ export default function CreateEventPage() {
                 value={formData.location_address}
                 onChange={(e) => handleInputChange('location_address', e.target.value)}
                 required
-                className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
               />
             </div>
 
@@ -135,7 +204,7 @@ export default function CreateEventPage() {
                   value={formData.start_datetime}
                   onChange={(e) => handleInputChange('start_datetime', e.target.value)}
                   required
-                  className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
+                  className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-white transition-all"
                 />
               </div>
               <div>
@@ -147,7 +216,7 @@ export default function CreateEventPage() {
                   value={formData.end_datetime}
                   onChange={(e) => handleInputChange('end_datetime', e.target.value)}
                   required
-                  className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
+                  className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-white transition-all"
                 />
               </div>
             </div>
@@ -175,9 +244,9 @@ export default function CreateEventPage() {
                 placeholder="food provided, music, fun, networking (comma separated)"
                 value={formData.social_tags}
                 onChange={(e) => handleInputChange('social_tags', e.target.value)}
-                className="w-full p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-zinc-500 mt-1">
                 Add fun elements to attract students (e.g., "free pizza", "music", "networking")
               </p>
             </div>
@@ -185,7 +254,7 @@ export default function CreateEventPage() {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full p-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full p-4 bg-white text-black font-semibold rounded hover:bg-zinc-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating Event...' : 'Create Event'}
             </button>

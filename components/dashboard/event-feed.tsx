@@ -38,7 +38,7 @@ function EventFeed({ userId }: { userId: string }) {
       .from('events')
       .select(`
         *,
-        organization_profiles!inner(org_name)
+        organization_profiles!inner(org_name, contact_email, contact_phone)
       `)
       .eq('status', 'published')
       .gte('start_datetime', new Date().toISOString())
