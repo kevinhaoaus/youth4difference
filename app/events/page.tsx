@@ -113,17 +113,19 @@ export default function EventsPage() {
       setAllTags(Array.from(tags))
     } catch (error: any) {
       console.error('Error fetching events:', error)
-      setDbError(error.message)
-      if (error.message.includes('relation "events" does not exist')) {
-        setDbError('Database tables missing. Please run the SQL setup script in your Supabase SQL Editor to create required tables.')
-      } else if (error.message.includes('JWT') || error.message.includes('permission') || error.message.includes('policy')) {
-        setDbError('Database permission error. Please run the fix-events-access.sql file in your Supabase SQL Editor to set up proper access policies.')
-      } else if (error.message.includes('Failed to fetch')) {
-        setDbError('Database connection failed. Please check your Supabase configuration and internet connection.')
-      } else {
-        setDbError(`Database error: ${error.message}`)
+      // Only show error messages for actual errors, not when there are simply no events
+      if (error.code !== 'PGRST116') { // PGRST116 is "no rows found" which is fine
+        if (error.message.includes('relation "events" does not exist')) {
+          setDbError('Database tables missing. Please run the SQL setup script in your Supabase SQL Editor to create required tables.')
+        } else if (error.message.includes('JWT') || error.message.includes('permission') || error.message.includes('policy')) {
+          setDbError('Database permission error. Please run the fix-events-access.sql file in your Supabase SQL Editor to set up proper access policies.')
+        } else if (error.message.includes('Failed to fetch')) {
+          setDbError('Database connection failed. Please check your Supabase configuration and internet connection.')
+        } else {
+          // Only show error if it's not just an empty result
+          console.log('Events query returned no results, which is normal if no events exist')
+        }
       }
-      toast.error(`Failed to load events: ${error.message}`)
       // Set empty events array to show "No events" message
       setEvents([])
     }

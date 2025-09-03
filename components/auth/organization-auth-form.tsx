@@ -44,17 +44,25 @@ export default function OrganizationAuthForm() {
           password,
         })
 
-        if (error) throw error
+        if (error) {
+          console.error('Signup error:', error)
+          throw error
+        }
 
         if (data.user) {
           // Update user type to organization
-          await supabase
+          const { error: updateError } = await supabase
             .from('users')
             .update({ user_type: 'organization' })
             .eq('id', data.user.id)
 
+          if (updateError) {
+            console.error('Error updating user type:', updateError)
+            // Continue anyway as this might be expected
+          }
+
           // Create organization profile
-          await supabase
+          const { error: profileError } = await supabase
             .from('organization_profiles')
             .insert({
               user_id: data.user.id,
@@ -63,7 +71,13 @@ export default function OrganizationAuthForm() {
               contact_phone: contactPhone || null,
               website_url: website || null,
               description: description || null,
+              contact_email: email, // Add the email field
             })
+
+          if (profileError) {
+            console.error('Error creating organization profile:', profileError)
+            throw profileError
+          }
 
           toast.success('Organization account created successfully!')
           setTimeout(() => {

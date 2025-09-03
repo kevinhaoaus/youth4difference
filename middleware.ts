@@ -37,14 +37,38 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
-    return NextResponse.redirect(new URL('/auth/login', request.url))
+  // Get user type if logged in
+  let userType = null
+  if (user) {
+    const { data: userData } = await supabase
+      .from('users')
+      .select('user_type')
+      .eq('id', user.id)
+      .single()
+    
+    userType = userData?.user_type
+  }
+
+  // Protect student dashboard routes
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/auth/login', request.url))
+    }
+    // Check if user is a student
+    if (userType === 'organization') {
+      return NextResponse.redirect(new URL('/org/dashboard', request.url))
+    }
   }
 
   // Protect organization routes
-  if (request.nextUrl.pathname.startsWith('/org') && !user) {
-    return NextResponse.redirect(new URL('/auth/org-login', request.url))
+  if (request.nextUrl.pathname.startsWith('/org')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/auth/org-login', request.url))
+    }
+    // Check if user is an organization
+    if (userType === 'student') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
   }
 
   return supabaseResponse
