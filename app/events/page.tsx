@@ -12,6 +12,7 @@ import Link from 'next/link'
 import UserProfile from '@/components/ui/user-profile'
 import { Event } from '@/lib/types'
 import { MESSAGES } from '@/lib/constants'
+import { useDebounce } from '@/lib/hooks/useDebounce'
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
@@ -25,6 +26,10 @@ export default function EventsPage() {
   const [registeredEvents, setRegisteredEvents] = useState<Set<string>>(new Set())
   const [dbError, setDbError] = useState<string>('')
   const supabase = createClient()
+  
+  // Debounce search terms to avoid excessive filtering
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
+  const debouncedLocationFilter = useDebounce(locationFilter, 300)
 
   useEffect(() => {
     const loadData = async () => {
@@ -51,7 +56,7 @@ export default function EventsPage() {
 
   useEffect(() => {
     applyFilters()
-  }, [events, searchTerm, locationFilter, timeFilter, selectedTags])
+  }, [events, debouncedSearchTerm, debouncedLocationFilter, timeFilter, selectedTags])
 
   const fetchEvents = async () => {
     try {
@@ -152,18 +157,18 @@ export default function EventsPage() {
     let filtered = [...events]
 
     // Search filter
-    if (searchTerm) {
+    if (debouncedSearchTerm) {
       filtered = filtered.filter(event => 
-        event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.organization_profiles?.org_name.toLowerCase().includes(searchTerm.toLowerCase())
+        event.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        event.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        event.organization_profiles?.org_name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
       )
     }
 
-    // Location filter
-    if (locationFilter) {
+    // Location filter  
+    if (debouncedLocationFilter) {
       filtered = filtered.filter(event =>
-        event.location_address.toLowerCase().includes(locationFilter.toLowerCase())
+        event.location_address.toLowerCase().includes(debouncedLocationFilter.toLowerCase())
       )
     }
 

@@ -8,6 +8,8 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { validate } from '@/lib/utils/validation'
+import { MESSAGES, CATEGORIES } from '@/lib/constants'
 
 export default function CreateEventPage() {
   const [loading, setLoading] = useState(false)
@@ -30,11 +32,49 @@ export default function CreateEventPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate required fields
+    if (!validate.required(formData.title)) {
+      toast.error('Event title is required')
+      return
+    }
+    
+    if (!validate.required(formData.short_description)) {
+      toast.error('Short description is required')
+      return
+    }
+    
+    if (!validate.required(formData.location_address)) {
+      toast.error('Location is required')
+      return
+    }
+    
+    if (!validate.required(formData.start_datetime)) {
+      toast.error('Start date & time is required')
+      return
+    }
+    
+    if (!validate.required(formData.end_datetime)) {
+      toast.error('End date & time is required')
+      return
+    }
+    
+    // Validate dates
+    if (new Date(formData.start_datetime) >= new Date(formData.end_datetime)) {
+      toast.error('End time must be after start time')
+      return
+    }
+    
+    if (new Date(formData.start_datetime) < new Date()) {
+      toast.error('Event cannot start in the past')
+      return
+    }
+    
     setLoading(true)
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      if (!user) throw new Error(MESSAGES.ERROR.NOT_AUTHENTICATED)
 
       const tagsArray = formData.social_tags
         .split(',')
@@ -50,16 +90,16 @@ export default function CreateEventPage() {
         .from('events')
         .insert({
           org_id: user.id,
-          title: formData.title,
-          description: formData.description,
-          short_description: formData.short_description,
+          title: validate.sanitizeInput(formData.title),
+          description: validate.sanitizeInput(formData.description),
+          short_description: validate.sanitizeInput(formData.short_description),
           category: formData.category,
-          location_address: formData.location_address,
+          location_address: validate.sanitizeInput(formData.location_address),
           start_datetime: formData.start_datetime,
           end_datetime: formData.end_datetime,
           max_volunteers: formData.max_volunteers,
-          volunteer_roles: rolesArray,
-          social_tags: tagsArray,
+          volunteer_roles: rolesArray.map(role => validate.sanitizeInput(role)),
+          social_tags: tagsArray.map(tag => validate.sanitizeInput(tag)),
         })
 
       if (error) throw error
