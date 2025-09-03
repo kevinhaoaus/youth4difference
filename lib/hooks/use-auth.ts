@@ -90,7 +90,7 @@ export function useAuth() {
         profile
       })
     } catch (error) {
-      console.error('Error fetching user profile:', error)
+      // Error fetching user profile
     }
   }
 

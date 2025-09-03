@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Card Components */
+  .card-base {
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl;
+  }
+  
+  .card-hover {
+    @apply hover:bg-white/20 transition-all duration-300;
+  }
+  
+  .card-interactive {
+    @apply cursor-pointer active:scale-95 hover:scale-[1.02] md:hover:scale-105;
+  }
+
+  /* Gradient Backgrounds */
+  .gradient-primary {
+    @apply bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800;
+  }
+  
+  .gradient-event {
+    @apply bg-gradient-to-r from-indigo-500 to-blue-600;
+  }
+
+  /* Button Components */
+  .btn-primary {
+    @apply bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-all;
+  }
+  
+  .btn-secondary {
+    @apply bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30 px-4 py-2 rounded-lg font-medium transition-all;
+  }
+  
+  .btn-small {
+    @apply px-3 py-1 text-xs rounded-lg font-medium;
+  }
+
+  /* Text Styles */
+  .text-primary {
+    @apply text-white font-semibold;
+  }
+  
+  .text-secondary {
+    @apply text-gray-300;
+  }
+  
+  .text-muted {
+    @apply text-gray-400;
+  }
+  
+  .text-subtle {
+    @apply text-gray-500;
+  }
+
+  /* Tag Components */
+  .tag-base {
+    @apply px-3 py-1 text-xs rounded-full font-medium border;
+  }
+  
+  .tag-pink {
+    @apply bg-pink-500/20 border-pink-500/40 text-pink-400;
+  }
+  
+  .tag-cyan {
+    @apply bg-cyan-500/20 border-cyan-500/40 text-cyan-400;
+  }
+  
+  .tag-purple {
+    @apply bg-purple-500/20 border-purple-500/40 text-purple-400;
+  }
+  
+  .tag-green {
+    @apply bg-green-500/20 border-green-500/40 text-green-400;
+  }
+
+  /* Loading Components */
+  .skeleton-base {
+    @apply bg-white/10 rounded animate-pulse;
+  }
+
+  /* Progress Components */
+  .progress-container {
+    @apply bg-white/5 backdrop-blur rounded-lg p-3 border border-white/10;
+  }
+  
+  .progress-bar {
+    @apply w-full bg-gray-600 rounded-full h-2;
+  }
+  
+  .progress-fill {
+    @apply bg-indigo-500 h-2 rounded-full transition-all duration-300;
+  }
+
+  /* Icon Containers */
+  .icon-container {
+    @apply bg-white/20 rounded-full flex items-center justify-center;
+  }
+  
+  .icon-container-sm {
+    @apply w-12 h-12;
+  }
+  
+  .icon-container-md {
+    @apply w-16 h-16;
+  }
+
+  /* Layout Helpers */
+  .mobile-phone-frame {
+    @apply w-[375px] h-[812px] bg-black rounded-[40px] p-2 shadow-2xl shadow-purple-500/20;
+  }
+  
+  .mobile-phone-content {
+    @apply w-full h-full rounded-[32px] overflow-hidden relative;
+  }
+}

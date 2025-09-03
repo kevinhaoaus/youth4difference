@@ -46,42 +46,36 @@ export default async function DashboardPage() {
     .single()
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-black overflow-hidden">
-      {/* Mobile: Phone Frame Container */}
-      <div className="md:hidden flex items-center justify-center min-h-screen p-4">
-        <div className="w-[375px] h-[812px] bg-black rounded-[40px] p-2 shadow-2xl shadow-purple-500/20">
-          <div className="w-full h-full bg-gradient-to-b from-slate-900 to-black rounded-[32px] overflow-hidden relative">
-            
-            <DashboardHeader user={user} profile={profile} />
-            
-            {/* App Content */}
-            <div className="h-[calc(100%-200px-83px)] bg-gradient-to-b from-slate-900/50 to-black overflow-y-auto custom-scroll">
-              <EventFeed userId={user.id} />
-            </div>
+    <div className="min-h-screen bg-black">
+      {/* Mobile View */}
+      <div className="md:hidden min-h-screen flex flex-col">
+        <DashboardHeader user={user} profile={profile} />
+        
+        <div className="flex-1 overflow-y-auto">
+          <EventFeed userId={user.id} />
+        </div>
 
-            {/* Bottom Navigation */}
-            <div className="h-[83px] bg-black/95 backdrop-blur-xl border-t border-white/10 flex justify-around items-center pb-5">
-              <div className="flex flex-col items-center text-cyan-400">
-                <div className="w-7 h-7 bg-current rounded-lg mb-1"></div>
-                <div className="text-xs font-semibold">Events</div>
-              </div>
-              <div className="flex flex-col items-center text-gray-600">
-                <div className="w-7 h-7 bg-current rounded-lg mb-1"></div>
-                <div className="text-xs font-semibold">My Events</div>
-              </div>
-              <div className="flex flex-col items-center text-gray-600">
-                <div className="w-7 h-7 bg-current rounded-lg mb-1"></div>
-                <div className="text-xs font-semibold">Profile</div>
-              </div>
-            </div>
+        {/* Bottom Navigation */}
+        <div className="bg-black border-t border-zinc-900 flex justify-around items-center py-3">
+          <div className="flex flex-col items-center text-white">
+            <svg className="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+            </svg>
+            <div className="text-xs">Events</div>
+          </div>
+          <div className="flex flex-col items-center text-zinc-500">
+            <svg className="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            </svg>
+            <div className="text-xs">Profile</div>
           </div>
         </div>
       </div>
 
-      {/* Desktop: Full Layout */}
+      {/* Desktop View */}
       <div className="hidden md:block">
         <DashboardHeader user={user} profile={profile} />
-        <div className="container mx-auto px-6 py-8">
+        <div className="container mx-auto px-6 py-8 max-w-6xl">
           <EventFeed userId={user.id} />
         </div>
       </div>

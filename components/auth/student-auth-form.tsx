@@ -2,8 +2,6 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
@@ -77,13 +75,12 @@ export default function StudentAuthForm() {
   }
 
   return (
-    <div className="w-full max-w-sm mx-auto space-y-6 p-6">
+    <div className="w-full space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-white bg-gradient-to-r from-blue-400 to-indigo-500 
-                     bg-clip-text text-transparent mb-2">
+        <h2 className="text-2xl font-bold text-white mb-2">
           {isLogin ? 'Welcome Back' : 'Create Account'}
-        </h1>
-        <p className="text-gray-300 text-sm">
+        </h2>
+        <p className="text-zinc-400 text-sm">
           {isLogin ? 'Sign in to find events near you' : 'Create your student account'}
         </p>
       </div>
@@ -96,9 +93,9 @@ export default function StudentAuthForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full p-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl 
-                     text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 
-                     transition-all duration-300"
+            className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded 
+                     text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
+                     transition-all"
           />
         </div>
 
@@ -109,9 +106,9 @@ export default function StudentAuthForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full p-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl 
-                     text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 
-                     transition-all duration-300"
+            className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded 
+                     text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
+                     transition-all"
           />
         </div>
 
@@ -124,9 +121,9 @@ export default function StudentAuthForm() {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 required
-                className="p-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl 
-                         text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 
-                         transition-all duration-300"
+                className="p-3 bg-zinc-900 border border-zinc-800 rounded 
+                         text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
+                         transition-all"
               />
               <input
                 type="text"
@@ -134,9 +131,9 @@ export default function StudentAuthForm() {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 required
-                className="p-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl 
-                         text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 
-                         transition-all duration-300"
+                className="p-3 bg-zinc-900 border border-zinc-800 rounded 
+                         text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
+                         transition-all"
               />
             </div>
             <div>
@@ -145,9 +142,9 @@ export default function StudentAuthForm() {
                 placeholder="University (optional)"
                 value={university}
                 onChange={(e) => setUniversity(e.target.value)}
-                className="w-full p-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl 
-                         text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 
-                         transition-all duration-300"
+                className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded 
+                         text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
+                         transition-all"
               />
             </div>
           </>
@@ -156,8 +153,8 @@ export default function StudentAuthForm() {
         <button 
           type="submit" 
           disabled={loading}
-          className="w-full p-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold 
-                   rounded-xl transition-all duration-300 disabled:opacity-50 
+          className="w-full p-3 bg-white text-black font-semibold 
+                   rounded transition-opacity hover:opacity-90 disabled:opacity-50 
                    disabled:cursor-not-allowed"
         >
           {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
@@ -168,7 +165,7 @@ export default function StudentAuthForm() {
         <button
           type="button"
           onClick={() => setIsLogin(!isLogin)}
-          className="text-cyan-400 hover:text-cyan-300 text-sm transition-colors duration-300"
+          className="text-zinc-400 hover:text-white text-sm transition-colors"
         >
           {isLogin
             ? "Don't have an account? Sign up"
