@@ -1,26 +1,9 @@
 import { Calendar, MapPin, Users } from 'lucide-react'
+import { Event } from '@/lib/types'
+import { CATEGORIES } from '@/lib/constants'
 
 interface EventCardProps {
-  event: {
-    id: string
-    title: string
-    description: string
-    short_description?: string
-    category?: string
-    volunteer_roles?: string[]
-    location_address: string
-    start_datetime: string
-    max_volunteers: number
-    social_tags?: string[]
-    organization_profiles: {
-      org_name: string
-      contact_email?: string
-      contact_phone?: string
-    }
-    _count?: {
-      registrations: number
-    }
-  }
+  event: Event
   isRegistered?: boolean
   registrationCount?: number
   onRegister?: (eventId: string) => void
@@ -29,17 +12,7 @@ interface EventCardProps {
 }
 
 const getCategoryBadge = (category?: string) => {
-  const badges: { [key: string]: { icon: string; color: string } } = {
-    environment: { icon: '🌱', color: 'bg-green-900 text-green-300' },
-    education: { icon: '📚', color: 'bg-blue-900 text-blue-300' },
-    community: { icon: '🏘️', color: 'bg-purple-900 text-purple-300' },
-    health: { icon: '❤️', color: 'bg-red-900 text-red-300' },
-    animals: { icon: '🐾', color: 'bg-yellow-900 text-yellow-300' },
-    arts: { icon: '🎨', color: 'bg-pink-900 text-pink-300' },
-    sports: { icon: '⚽', color: 'bg-orange-900 text-orange-300' },
-    other: { icon: '📌', color: 'bg-gray-900 text-gray-300' }
-  }
-  return badges[category || 'other'] || badges.other
+  return CATEGORIES[category as keyof typeof CATEGORIES] || CATEGORIES.other
 }
 
 export function EventCard({ 
@@ -163,7 +136,7 @@ export function EventCard({
           )}
 
           <div className="text-subtle text-sm mb-2">
-            by <span className="font-semibold">{event.organization_profiles.org_name}</span>
+            by <span className="font-semibold">{event.organization_profiles?.org_name || 'Unknown'}</span>
           </div>
           
           {(event.organization_profiles?.contact_email || event.organization_profiles?.contact_phone) && (
@@ -250,7 +223,7 @@ export function EventCard({
           </div>
 
           <div className="text-subtle text-xs">
-            by {event.organization_profiles.org_name}
+            by {event.organization_profiles?.org_name || 'Unknown'}
           </div>
         </div>
       </div>
@@ -313,7 +286,7 @@ export function EventCard({
       )}
 
       <div className="text-subtle text-xs">
-        by {event.organization_profiles.org_name}
+        by {event.organization_profiles?.org_name || 'Unknown'}
       </div>
     </div>
   )

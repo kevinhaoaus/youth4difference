@@ -1,12 +1,12 @@
 'use client'
 
-import { useAuth } from '@/lib/hooks/use-auth'
+import { useAuth } from '@/lib/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { LogOut, User, Building } from 'lucide-react'
 import Link from 'next/link'
 
 export default function UserProfile() {
-  const { user, userProfile, loading, signOut, isAuthenticated } = useAuth()
+  const { user, userType, loading, signOut, isAuthenticated, isOrganization } = useAuth()
 
   if (loading) {
     return (
@@ -32,13 +32,8 @@ export default function UserProfile() {
     )
   }
 
-  const displayName = userProfile?.profile?.first_name 
-    ? `${userProfile.profile.first_name} ${userProfile.profile.last_name || ''}`.trim()
-    : userProfile?.profile?.org_name 
-    ? userProfile.profile.org_name
-    : user?.email?.split('@')[0] || 'User'
-
-  const dashboardLink = userProfile?.user_type === 'organization' ? '/org/dashboard' : '/dashboard'
+  const displayName = user?.email?.split('@')[0] || 'User'
+  const dashboardLink = isOrganization ? '/org/dashboard' : '/dashboard'
 
   return (
     <div className="flex items-center gap-2">
@@ -46,7 +41,7 @@ export default function UserProfile() {
       <Link href={dashboardLink}>
         <div className="flex items-center gap-2 p-2 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300 md:px-4 md:py-2 md:rounded-xl">
           <div className="w-6 h-6 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
-            {userProfile?.user_type === 'organization' ? (
+            {isOrganization ? (
               <Building className="h-3 w-3" />
             ) : (
               displayName.charAt(0).toUpperCase()

@@ -1,108 +1,18 @@
 'use client'
 
-import { useEffect, useState, useCallback, memo } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { toast } from 'sonner'
+import { memo } from 'react'
 import { LoadingSkeleton } from '@/components/ui/loading-skeleton'
 import { EventCard } from '@/components/ui/event-card'
-
-interface Event {
-  id: string
-  title: string
-  description: string
-  location_address: string
-  start_datetime: string
-  max_volunteers: number
-  social_tags: string[]
-  organization_profiles: {
-    org_name: string
-  }
-  _count?: {
-    registrations: number
-  }
-}
+import { useEvents } from '@/lib/hooks/useEvents'
 
 function EventFeed({ userId }: { userId: string }) {
-  const [events, setEvents] = useState<Event[]>([])
-  const [registeredEvents, setRegisteredEvents] = useState<Set<string>>(new Set())
-  const [loading, setLoading] = useState(true)
-  const supabase = createClient()
-
-  useEffect(() => {
-    fetchEvents()
-    fetchRegistrations()
-  }, [])
-
-  const fetchEvents = async () => {
-    const { data, error } = await supabase
-      .from('events')
-      .select(`
-        *,
-        organization_profiles!inner(org_name, contact_email, contact_phone)
-      `)
-      .eq('status', 'published')
-      .gte('start_datetime', new Date().toISOString())
-      .order('start_datetime', { ascending: true })
-      .limit(10)
-
-    if (error) {
-      toast.error('Failed to load events')
-      return
-    }
-
-    setEvents(data || [])
-    setLoading(false)
-  }
-
-  const fetchRegistrations = async () => {
-    const { data } = await supabase
-      .from('event_registrations')
-      .select('event_id')
-      .eq('user_id', userId)
-
-    if (data) {
-      setRegisteredEvents(new Set(data.map(reg => reg.event_id)))
-    }
-  }
-
-  const handleJoinEvent = useCallback(async (eventId: string) => {
-    try {
-      const { error } = await supabase
-        .from('event_registrations')
-        .insert({
-          event_id: eventId,
-          user_id: userId,
-        })
-
-      if (error) throw error
-
-      setRegisteredEvents(prev => new Set([...Array.from(prev), eventId]))
-      toast.success('Successfully joined event! 🎉')
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to join event')
-    }
-  }, [supabase, userId])
-
-  const handleLeaveEvent = useCallback(async (eventId: string) => {
-    try {
-      const { error } = await supabase
-        .from('event_registrations')
-        .delete()
-        .eq('event_id', eventId)
-        .eq('user_id', userId)
-
-      if (error) throw error
-
-      setRegisteredEvents(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(eventId)
-        return newSet
-      })
-      toast.success('Left event successfully')
-    } catch (error: any) {
-      toast.error('Failed to leave event')
-    }
-  }, [supabase, userId])
+  const { 
+    events, 
+    loading, 
+    isRegistered, 
+    registerForEvent, 
+    unregisterFromEvent 
+  } = useEvents()
 
   if (loading) {
     return (
@@ -124,9 +34,9 @@ function EventFeed({ userId }: { userId: string }) {
           <EventCard
             key={event.id}
             event={event}
-            isRegistered={registeredEvents.has(event.id)}
-            onRegister={handleJoinEvent}
-            onUnregister={handleLeaveEvent}
+            isRegistered={isRegistered(event.id)}
+            onRegister={registerForEvent}
+            onUnregister={unregisterFromEvent}
             variant="feed"
           />
         ))}

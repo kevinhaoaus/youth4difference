@@ -10,22 +10,8 @@ import { toast } from 'sonner'
 import { Calendar, MapPin, Users, Search, Filter, Clock, Tag, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import UserProfile from '@/components/ui/user-profile'
-
-interface Event {
-  id: string
-  title: string
-  description: string
-  location_address: string
-  start_datetime: string
-  max_volunteers: number
-  social_tags: string[]
-  organization_profiles: {
-    org_name: string
-  }
-  _count?: {
-    registrations: number
-  }
-}
+import { Event } from '@/lib/types'
+import { MESSAGES } from '@/lib/constants'
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
@@ -100,8 +86,10 @@ export default function EventsPage() {
 
       const eventsWithOrgs = eventsData?.map(event => ({
         ...event,
+        end_datetime: event.end_datetime || event.start_datetime, // Default to start if no end
+        status: event.status || 'published' as const,
         organization_profiles: orgsMap.get(event.org_id) || { org_name: 'Unknown Organization' }
-      })) || []
+      })) as Event[] || []
 
       setEvents(eventsWithOrgs)
       
@@ -111,16 +99,17 @@ export default function EventsPage() {
         event.social_tags?.forEach((tag: string) => tags.add(tag))
       })
       setAllTags(Array.from(tags))
-    } catch (error: any) {
-      console.error('Error fetching events:', error)
+    } catch (error) {
+      const err = error as Error
+      console.error('Error fetching events:', err)
       // Only show error messages for actual errors, not when there are simply no events
-      if (error.code !== 'PGRST116') { // PGRST116 is "no rows found" which is fine
-        if (error.message.includes('relation "events" does not exist')) {
-          setDbError('Database tables missing. Please run the SQL setup script in your Supabase SQL Editor to create required tables.')
-        } else if (error.message.includes('JWT') || error.message.includes('permission') || error.message.includes('policy')) {
-          setDbError('Database permission error. Please run the fix-events-access.sql file in your Supabase SQL Editor to set up proper access policies.')
-        } else if (error.message.includes('Failed to fetch')) {
-          setDbError('Database connection failed. Please check your Supabase configuration and internet connection.')
+      if ((err as any).code !== 'PGRST116') { // PGRST116 is "no rows found" which is fine
+        if (err.message.includes('relation "events" does not exist')) {
+          setDbError(MESSAGES.ERROR.DATABASE_MISSING)
+        } else if (err.message.includes('JWT') || err.message.includes('permission') || err.message.includes('policy')) {
+          setDbError(MESSAGES.ERROR.DATABASE_PERMISSION)
+        } else if (err.message.includes('Failed to fetch')) {
+          setDbError(MESSAGES.ERROR.DATABASE_CONNECTION)
         } else {
           // Only show error if it's not just an empty result
           console.log('Events query returned no results, which is normal if no events exist')
@@ -167,7 +156,7 @@ export default function EventsPage() {
       filtered = filtered.filter(event => 
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.organization_profiles.org_name.toLowerCase().includes(searchTerm.toLowerCase())
+        event.organization_profiles?.org_name.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
