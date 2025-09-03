@@ -37,6 +37,28 @@ next-env.d.ts
 
 # temp directories
 temp_project/
+temp/
+tmp/
 
 # MacOS
 *.rtfd/
+.DS_Store
+._*
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Debug files
+*.log
+debug/
+
+# Claude and Serena config
+.claude/
+.serena/
+
+# ESLint cache
+.eslintcache

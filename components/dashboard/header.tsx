@@ -3,8 +3,8 @@
 import { User } from '@supabase/supabase-js'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
-import { LogOut, MapPin, Calendar } from 'lucide-react'
+import { useRouter, usePathname } from 'next/navigation'
+import { LogOut, MapPin, Calendar, Home, UserCircle } from 'lucide-react'
 import Link from 'next/link'
 
 interface DashboardHeaderProps {
@@ -14,6 +14,7 @@ interface DashboardHeaderProps {
 
 export default function DashboardHeader({ user, profile }: DashboardHeaderProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const supabase = createClient()
 
   const handleSignOut = async () => {
@@ -22,53 +23,72 @@ export default function DashboardHeader({ user, profile }: DashboardHeaderProps)
   }
 
   return (
-    <>
-      {/* Mobile: Status Bar */}
-      <div className="md:hidden h-11 bg-black/90 flex justify-between items-center px-5 text-white text-sm font-semibold">
-        <span>9:41</span>
-        <span>🔋 100%</span>
-      </div>
-      
-      {/* Header */}
-      <header className="p-5 pb-3 bg-white/5 backdrop-blur-xl border-b border-white/10 md:bg-white/10">
-        <div className="flex justify-between items-start mb-3">
-          <div>
-            <h1 className="text-white text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 
-                         bg-clip-text text-transparent md:text-3xl">
-              VolunteerVibe
-            </h1>
-            <p className="text-gray-300 text-sm">
-              Welcome back, {profile?.first_name || 'User'}
+    <header className="bg-zinc-900 border-b border-zinc-800">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-8">
+            <Link href="/">
+              <h1 className="text-2xl font-bold text-white md:text-3xl hover:text-zinc-300 transition-colors cursor-pointer">
+                VolunteerVibe
+              </h1>
+            </Link>
+            <p className="hidden md:block text-sm text-zinc-400">
+              Welcome back, {profile?.full_name || profile?.first_name || user?.email?.split('@')[0] || 'User'}
             </p>
           </div>
           
-          <div className="flex items-center gap-2">
-            <Link href="/events">
-              <button className="p-2 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 
-                               text-white hover:bg-white/20 transition-all duration-300 md:px-4 md:py-2 md:rounded-xl">
-                <Calendar className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline">All Events</span>
-              </button>
+          <nav className="flex items-center gap-2">
+            <Link href="/">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="text-zinc-400 hover:text-white hover:bg-zinc-800"
+              >
+                <Home className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Home</span>
+              </Button>
             </Link>
             
-            <button 
+            <Link href="/events">
+              <Button 
+                variant={pathname === '/events' ? 'secondary' : 'ghost'}
+                size="sm"
+                className={pathname === '/events' 
+                  ? 'bg-zinc-800 text-white' 
+                  : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">All Events</span>
+              </Button>
+            </Link>
+            
+            <Link href="/profile/edit">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="text-zinc-400 hover:text-white hover:bg-zinc-800"
+              >
+                <UserCircle className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Profile</span>
+              </Button>
+            </Link>
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
               onClick={handleSignOut}
-              className="p-2 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 
-                       text-white hover:bg-white/20 transition-all duration-300 md:px-4 md:py-2 md:rounded-xl"
+              className="text-zinc-400 hover:text-white hover:bg-zinc-800"
             >
-              <LogOut className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Sign Out</span>
-            </button>
-          </div>
+              <LogOut className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Sign Out</span>
+            </Button>
+          </nav>
         </div>
         
-        <div className="p-3 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 flex items-center gap-2 text-white">
-          <div className="w-5 h-5 bg-gradient-to-r from-pink-400 to-cyan-400 rounded-full flex items-center justify-center text-xs">
-            📍
-          </div>
-          <span className="text-sm">Sydney, 5km radius</span>
+        <div className="md:hidden mt-2 text-sm text-zinc-400">
+          Welcome, {profile?.full_name || profile?.first_name || user?.email?.split('@')[0] || 'User'}
         </div>
-      </header>
-    </>
+      </div>
+    </header>
   )
 }

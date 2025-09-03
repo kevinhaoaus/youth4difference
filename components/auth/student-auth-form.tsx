@@ -4,71 +4,72 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { LogIn, UserPlus } from 'lucide-react'
 
 export default function StudentAuthForm() {
-  const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [university, setUniversity] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      if (isLogin) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      
+      if (error) throw error
+      
+      // Check user type and redirect appropriately
+      if (data.user) {
+        const { data: userData, error: userFetchError } = await supabase
+          .from('users')
+          .select('user_type')
+          .eq('id', data.user.id)
+          .single()
         
-        if (error) throw error
-        
-        toast.success('Welcome back!')
-        
-        // Refresh the router to update auth state and redirect
-        router.refresh()
-        router.push('/dashboard')
-      } else {
-        // Sign up
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-        })
-
-        if (error) throw error
-
-        if (data.user) {
-          // Update user type to student
-          await supabase
+        // If no user record exists, create it as student
+        if (!userData || userFetchError) {
+          const { error: insertError } = await supabase
             .from('users')
-            .update({ user_type: 'student' })
-            .eq('id', data.user.id)
-
-          // Create student profile
-          await supabase
-            .from('student_profiles')
             .insert({
-              user_id: data.user.id,
-              first_name: firstName,
-              last_name: lastName,
-              university: university || null,
+              id: data.user.id,
+              email: data.user.email!,
+              user_type: 'student'
             })
-
-          toast.success('Account created successfully!')
           
-          // Refresh the router to update auth state and redirect
+          if (insertError && insertError.code !== '23505') {
+            console.error('Error creating user record:', insertError)
+          }
+          
+          // Proceed to student dashboard
+          toast.success('Welcome back!')
           router.refresh()
           router.push('/dashboard')
+          return
         }
+        
+        // Check if user is an organization trying to use student login
+        if (userData.user_type === 'organization') {
+          toast.error('This is a student login. Please use the organization login.')
+          await supabase.auth.signOut()
+          router.push('/auth/org-login')
+          return
+        }
+        
+        // User is a student, proceed
+        toast.success('Welcome back!')
+        router.refresh()
+        router.push('/dashboard')
       }
     } catch (error: any) {
-      toast.error(error.message || 'An error occurred')
+      toast.error(error.message || 'Invalid email or password')
     } finally {
       setLoading(false)
     }
@@ -77,15 +78,16 @@ export default function StudentAuthForm() {
   return (
     <div className="w-full space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-white mb-2">
-          {isLogin ? 'Welcome Back' : 'Create Account'}
+        <h2 className="text-2xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+          <LogIn className="h-6 w-6" />
+          Student Login
         </h2>
         <p className="text-zinc-400 text-sm">
-          {isLogin ? 'Sign in to find events near you' : 'Create your student account'}
+          Sign in to find volunteering opportunities
         </p>
       </div>
 
-      <form onSubmit={handleAuth} className="space-y-4">
+      <form onSubmit={handleSignIn} className="space-y-4">
         <div>
           <input
             type="email"
@@ -93,7 +95,7 @@ export default function StudentAuthForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded 
+            className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded 
                      text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
                      transition-all"
           />
@@ -106,71 +108,54 @@ export default function StudentAuthForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded 
+            className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded 
                      text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
                      transition-all"
           />
         </div>
 
-        {!isLogin && (
-          <>
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                placeholder="First Name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
-                className="p-3 bg-zinc-900 border border-zinc-800 rounded 
-                         text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
-                         transition-all"
-              />
-              <input
-                type="text"
-                placeholder="Last Name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
-                className="p-3 bg-zinc-900 border border-zinc-800 rounded 
-                         text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
-                         transition-all"
-              />
-            </div>
-            <div>
-              <input
-                type="text"
-                placeholder="University (optional)"
-                value={university}
-                onChange={(e) => setUniversity(e.target.value)}
-                className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded 
-                         text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
-                         transition-all"
-              />
-            </div>
-          </>
-        )}
+        <div className="flex justify-end">
+          <Link href="#" className="text-sm text-zinc-400 hover:text-white transition-colors">
+            Forgot password?
+          </Link>
+        </div>
 
         <button 
           type="submit" 
           disabled={loading}
           className="w-full p-3 bg-white text-black font-semibold 
                    rounded transition-opacity hover:opacity-90 disabled:opacity-50 
-                   disabled:cursor-not-allowed"
+                   disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
+          <LogIn className="h-4 w-4" />
+          {loading ? 'Signing In...' : 'Sign In'}
         </button>
       </form>
 
-      <div className="text-center">
-        <button
-          type="button"
-          onClick={() => setIsLogin(!isLogin)}
-          className="text-zinc-400 hover:text-white text-sm transition-colors"
-        >
-          {isLogin
-            ? "Don't have an account? Sign up"
-            : 'Already have an account? Sign in'}
-        </button>
+      <div className="space-y-4">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-zinc-800"></div>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-zinc-900 px-2 text-zinc-400">New to VolunteerVibe?</span>
+          </div>
+        </div>
+
+        <Link href="/auth/signup">
+          <button className="w-full p-3 bg-transparent border border-zinc-800 text-white font-semibold 
+                         rounded hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
+            <UserPlus className="h-4 w-4" />
+            Create Student Account
+          </button>
+        </Link>
+
+        <div className="text-center text-sm text-zinc-400">
+          Are you an organization?{' '}
+          <Link href="/auth/org-login" className="text-white hover:underline font-semibold">
+            Organization login here
+          </Link>
+        </div>
       </div>
     </div>
   )

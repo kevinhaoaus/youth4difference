@@ -1,9 +1,83 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { LoginDropdown } from '@/components/ui/login-dropdown'
-import { User, Building } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+import { User, Building, Calendar, LogOut, UserCircle } from 'lucide-react'
 
 export default function HomePage() {
+  const [user, setUser] = useState<any>(null)
+  const [userType, setUserType] = useState<'student' | 'organization' | null>(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const supabase = createClient()
+
+  useEffect(() => {
+    checkAuth()
+    
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        checkAuth()
+      } else {
+        setUser(null)
+        setUserType(null)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const checkAuth = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUser(user)
+        
+        // Get user type
+        const { data: userData } = await supabase
+          .from('users')
+          .select('user_type')
+          .eq('id', user.id)
+          .single()
+        
+        if (userData) {
+          setUserType(userData.user_type)
+        }
+      }
+    } catch (error) {
+      console.error('Error checking auth:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    setUserType(null)
+    router.push('/')
+  }
+
+  const handleNavigateToDashboard = () => {
+    if (userType === 'organization') {
+      router.push('/org/dashboard')
+    } else {
+      router.push('/dashboard')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-black">
       {/* Mobile View */}
@@ -13,7 +87,28 @@ export default function HomePage() {
           <h2 className="text-lg font-bold text-white">
             VolunteerVibe
           </h2>
-          <LoginDropdown />
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={handleNavigateToDashboard}
+                variant="ghost" 
+                size="sm"
+                className="text-zinc-400 hover:text-white"
+              >
+                <UserCircle className="h-4 w-4" />
+              </Button>
+              <Button 
+                onClick={handleSignOut}
+                variant="ghost" 
+                size="sm"
+                className="text-zinc-400 hover:text-white"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <LoginDropdown />
+          )}
         </div>
 
         {/* Mobile Content */}
@@ -27,18 +122,37 @@ export default function HomePage() {
           </p>
           
           <div className="w-full space-y-3 max-w-xs">
-            <Link href="/auth/login" className="block">
-              <button className="w-full p-4 bg-white text-black font-semibold 
-                               rounded transition-opacity hover:opacity-90">
-                Student Login
-              </button>
-            </Link>
-            <Link href="/auth/org-login" className="block">
-              <button className="w-full p-4 bg-transparent border border-zinc-800 text-white font-semibold 
-                               rounded hover:bg-zinc-900 transition-colors">
-                Organization Login
-              </button>
-            </Link>
+            {user ? (
+              <>
+                <button 
+                  onClick={handleNavigateToDashboard}
+                  className="w-full p-4 bg-white text-black font-semibold 
+                                 rounded transition-opacity hover:opacity-90">
+                  Go to Dashboard
+                </button>
+                <Link href="/events" className="block">
+                  <button className="w-full p-4 bg-transparent border border-zinc-800 text-white font-semibold 
+                                   rounded hover:bg-zinc-900 transition-colors">
+                    Browse Events
+                  </button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login" className="block">
+                  <button className="w-full p-4 bg-white text-black font-semibold 
+                                   rounded transition-opacity hover:opacity-90">
+                    Student Login
+                  </button>
+                </Link>
+                <Link href="/auth/org-login" className="block">
+                  <button className="w-full p-4 bg-transparent border border-zinc-800 text-white font-semibold 
+                                   rounded hover:bg-zinc-900 transition-colors">
+                    Organization Login
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -53,7 +167,34 @@ export default function HomePage() {
             <Link href="/events">
               <Button variant="ghost" className="text-zinc-400 hover:text-white hover:bg-zinc-900">Browse Events</Button>
             </Link>
-            <LoginDropdown />
+            {user ? (
+              <>
+                <Button 
+                  onClick={handleNavigateToDashboard}
+                  variant="ghost" 
+                  className="text-zinc-400 hover:text-white hover:bg-zinc-900"
+                >
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Dashboard
+                </Button>
+                <Link href="/profile/edit">
+                  <Button variant="ghost" className="text-zinc-400 hover:text-white hover:bg-zinc-900">
+                    <UserCircle className="h-4 w-4 mr-2" />
+                    Profile
+                  </Button>
+                </Link>
+                <Button 
+                  onClick={handleSignOut}
+                  className="bg-white text-black hover:bg-zinc-200"
+                  size="sm"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <LoginDropdown />
+            )}
           </div>
         </nav>
 
@@ -68,16 +209,35 @@ export default function HomePage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-24">
-              <Link href="/auth/login">
-                <Button size="lg" className="bg-white text-black hover:bg-zinc-200 text-base px-8 py-4 font-semibold">
-                  Get Started
-                </Button>
-              </Link>
-              <Link href="/auth/org-login">
-                <Button size="lg" variant="outline" className="border-zinc-800 text-white hover:bg-zinc-900 text-base px-8 py-4 font-semibold">
-                  For Organizations
-                </Button>
-              </Link>
+              {user ? (
+                <>
+                  <Button 
+                    onClick={handleNavigateToDashboard}
+                    size="lg" 
+                    className="bg-white text-black hover:bg-zinc-200 text-base px-8 py-4 font-semibold"
+                  >
+                    Go to Dashboard
+                  </Button>
+                  <Link href="/events">
+                    <Button size="lg" variant="outline" className="border-zinc-800 text-white hover:bg-zinc-900 text-base px-8 py-4 font-semibold">
+                      Browse Events
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/auth/login">
+                    <Button size="lg" className="bg-white text-black hover:bg-zinc-200 text-base px-8 py-4 font-semibold">
+                      Get Started
+                    </Button>
+                  </Link>
+                  <Link href="/auth/org-login">
+                    <Button size="lg" variant="outline" className="border-zinc-800 text-white hover:bg-zinc-900 text-base px-8 py-4 font-semibold">
+                      For Organizations
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">

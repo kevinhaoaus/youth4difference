@@ -291,3 +291,160 @@ After completing this MVP, the following features can be added:
 - Git repository ready for deployment
 
 **Status**: Ready for Supabase setup and deployment! 🌟
+
+---
+
+## New Feature Implementation: Event Signup Requirements
+
+### 1. Make Email and Phone Mandatory in User Profile
+
+#### For Student Profile Edit (✅ In Progress)
+- [ ] Update `/app/profile/edit/page.tsx` to make phone field required
+- [ ] Add validation messages for required fields  
+- [ ] Ensure email is accessible (currently only at auth level)
+
+#### For Student Signup
+- [ ] Update `/app/auth/signup/page.tsx` to collect phone number during registration
+- [ ] Make phone number a required field with validation
+
+#### Database Considerations
+- [ ] Ensure phone number is always captured for new users
+- [ ] Update existing users to require phone on next profile update
+
+### 2. Show Event Attendees for Organizations
+
+#### Create Attendee List View
+- [ ] Create new component for viewing event attendees
+- [ ] Display attendee details: Name, Email, Phone Number
+- [ ] Add "View Attendees" button to each event card in org dashboard
+
+#### Data Fetching Updates
+- [ ] Query event_registrations with full user details
+- [ ] Join with student_profiles to get contact information
+- [ ] Ensure privacy (only org can see their event attendees)
+
+### Implementation Strategy
+- Keep changes minimal and simple
+- Use existing UI patterns and components
+- Maintain data privacy and security
+
+---
+
+## Review Section - Event Signup Requirements Implementation
+
+### ✅ Changes Completed
+
+#### 1. Made Email and Phone Number Mandatory Fields
+**Profile Edit Page (`/app/profile/edit/page.tsx`)**:
+- Added email field display (read-only) to show user's email
+- Made phone number a required field with validation
+- Added full name as required field
+- Added helpful text explaining why phone is required
+
+**Student Signup (`/app/auth/signup/page.tsx`)**:
+- Added phone number field to registration form
+- Made phone number required with Australian mobile format validation
+- Phone number now saved to student profile during registration
+
+#### 2. Organization Event Attendee List
+**New Component (`/components/org/event-attendees.tsx`)**:
+- Created modal component to display event attendees
+- Shows attendee name, email, phone number, and university
+- Includes CSV export functionality for attendee lists
+- Privacy-focused: only event creator can see attendee details
+
+**Events List Update (`/components/org/events-list.tsx`)**:
+- Added "View Attendees" button for events with registrations
+- Button shows count of registered attendees
+- Integrates seamlessly with existing event cards
+
+### Technical Details
+- All changes follow existing UI patterns (dark theme, zinc color scheme)
+- Used existing validation utilities for phone number format
+- Maintained TypeScript type safety throughout
+- No breaking changes to existing functionality
+- Build and lint checks pass successfully
+
+### Data Flow
+1. **Student Registration**: Phone collected at signup → Stored in student_profiles table
+2. **Profile Updates**: Phone required for profile completion → Validated on save
+3. **Event Registration**: Student data linked via user_id
+4. **Attendee View**: Organizations query registrations → Join with profiles → Display contact info
+
+### Security & Privacy
+- Only organization that created the event can view attendee details
+- Contact information disclaimer added to modal
+- Data fetched server-side with proper authentication checks
+- CSV export includes only necessary contact fields
+
+---
+
+## REBRANDING PLAN: VolunteerVibe → Youth4Difference
+
+### Problem Analysis
+The website currently uses "VolunteerVibe" branding throughout and needs to be rebranded to "Youth4Difference" with new logo assets.
+
+### Assets Available
+- **Main Logo**: `logos/IMG_0072-Photoroom.png` - for hero section and header
+- **Favicon Package**: `logos/favicon_io/` folder contains:
+  - `favicon.ico`
+  - `favicon-16x16.png` 
+  - `favicon-32x32.png`
+  - `android-chrome-192x192.png`
+  - `android-chrome-512x512.png`
+  - `apple-touch-icon.png`
+  - `site.webmanifest`
+
+### Rebranding Tasks
+
+#### 1. Logo and Favicon Updates
+- [ ] Replace favicon.svg in /public with favicon.ico from logos/favicon_io/
+- [ ] Copy all favicon files from logos/favicon_io/ to /public
+- [ ] Update site.webmanifest if needed
+- [ ] Add main logo (IMG_0072-Photoroom.png) to /public folder
+- [ ] Add logo to header components (top left corner)
+- [ ] Replace hero logo with new Youth4Difference logo
+
+#### 2. Brand Name Updates - File Content
+- [ ] Update app/layout.tsx - metadata title and authors
+- [ ] Update app/page.tsx - all "VolunteerVibe" references  
+- [ ] Update app/loading.tsx - loading text
+- [ ] Update app/auth/org-login/page.tsx - brand name
+- [ ] Update app/auth/signup/page.tsx - brand name
+- [ ] Update app/auth/org-signup/page.tsx - brand name  
+- [ ] Update app/auth/login/page.tsx - brand name
+- [ ] Update components/ui/unified-header.tsx - default title
+- [ ] Update components/auth/student-auth-form.tsx - "New to VolunteerVibe" text
+- [ ] Update components/org/header.tsx - brand name
+- [ ] Update components/dashboard/header.tsx - brand name
+- [ ] Update lib/utils/seo.ts - all branding references
+
+#### 3. Package Configuration Updates
+- [ ] Update package.json - change name from "volunteer-vibe" to "youth4difference"
+- [ ] Update package-lock.json if needed (regenerate)
+
+#### 4. SEO and Metadata Updates
+- [ ] Update all metadata descriptions to use "Youth4Difference"
+- [ ] Update social media handles/creators if any
+- [ ] Update site URLs and domains in SEO config
+- [ ] Update manifest file for PWA if applicable
+
+#### 5. Component Integration
+- [ ] Add logo component to header layouts
+- [ ] Ensure responsive logo display on mobile/desktop
+- [ ] Test logo visibility on dark theme
+- [ ] Maintain existing navigation functionality
+
+### Implementation Strategy
+- **Keep changes minimal**: Only update text and add logos, no structural changes
+- **Maintain existing design**: Keep current dark theme and layout
+- **Test incrementally**: Verify each component after changes
+- **Preserve functionality**: Ensure all features continue working
+
+### Success Criteria
+- All "VolunteerVibe" text changed to "Youth4Difference"
+- New favicon visible in browser tab
+- Logo appears in top left corner of all pages  
+- Hero section uses new logo
+- Package name updated consistently
+- No broken functionality

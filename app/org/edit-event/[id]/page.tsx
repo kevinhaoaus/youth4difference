@@ -1,22 +1,42 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import { toast } from 'sonner'
 import Link from 'next/link'
 import { validate } from '@/lib/utils/validation'
-import { MESSAGES, CATEGORIES } from '@/lib/constants'
+import { MESSAGES } from '@/lib/constants'
 import OrgHeader from '@/components/org/header'
 
-export default function CreateEventPage() {
+interface EventFormData {
+  title: string
+  description: string
+  short_description: string
+  category: string
+  location_address: string
+  start_datetime: string
+  end_datetime: string
+  max_volunteers: number
+  volunteer_roles: string
+  social_tags: string
+  status: string
+}
+
+export default function EditEventPage() {
+  const params = useParams()
+  const router = useRouter()
+  const eventId = params.id as string
+  const supabase = createClient()
+  
   const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(true)
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
-  const [formData, setFormData] = useState({
+  const [charCount, setCharCount] = useState(0)
+  const [formData, setFormData] = useState<EventFormData>({
     title: '',
     description: '',
     short_description: '',
@@ -27,34 +47,72 @@ export default function CreateEventPage() {
     max_volunteers: 10,
     volunteer_roles: '',
     social_tags: '',
+    status: 'published'
   })
-  const [charCount, setCharCount] = useState(0)
-  
-  const router = useRouter()
-  const supabase = createClient()
 
   useEffect(() => {
-    checkAuth()
-  }, [])
+    const loadEventAndUser = async () => {
+      try {
+        // Get user
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (userError || !user) {
+          router.push('/auth/org-login')
+          return
+        }
+        setUser(user)
 
-  const checkAuth = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      router.push('/auth/org-login')
-      return
+        // Get profile
+        const { data: profileData } = await supabase
+          .from('organization_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single()
+        setProfile(profileData)
+
+        // Get event data
+        const { data: eventData, error: eventError } = await supabase
+          .from('events')
+          .select('*')
+          .eq('id', eventId)
+          .eq('org_id', user.id)
+          .single()
+
+        if (eventError || !eventData) {
+          toast.error('Event not found or you do not have permission to edit it')
+          router.push('/org/dashboard')
+          return
+        }
+
+        // Format dates for input fields
+        const startDate = new Date(eventData.start_datetime)
+        const endDate = new Date(eventData.end_datetime)
+        
+        setFormData({
+          title: eventData.title || '',
+          description: eventData.description || '',
+          short_description: eventData.short_description || '',
+          category: eventData.category || 'community',
+          location_address: eventData.location_address || '',
+          start_datetime: startDate.toISOString().slice(0, 16),
+          end_datetime: endDate.toISOString().slice(0, 16),
+          max_volunteers: eventData.max_volunteers || 10,
+          volunteer_roles: eventData.volunteer_roles?.join(', ') || '',
+          social_tags: eventData.social_tags?.join(', ') || '',
+          status: eventData.status || 'published'
+        })
+        
+        setCharCount(eventData.short_description?.length || 0)
+      } catch (error) {
+        console.error('Error loading event:', error)
+        toast.error('Failed to load event')
+        router.push('/org/dashboard')
+      } finally {
+        setFetching(false)
+      }
     }
-    
-    setUser(user)
-    
-    // Get organization profile
-    const { data: profile } = await supabase
-      .from('organization_profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
-    
-    setProfile(profile)
-  }
+
+    loadEventAndUser()
+  }, [eventId, router, supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -91,17 +149,9 @@ export default function CreateEventPage() {
       return
     }
     
-    if (new Date(formData.start_datetime) < new Date()) {
-      toast.error('Event cannot start in the past')
-      return
-    }
-    
     setLoading(true)
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error(MESSAGES.ERROR.NOT_AUTHENTICATED)
-
       const tagsArray = formData.social_tags
         .split(',')
         .map(tag => tag.trim())
@@ -114,8 +164,7 @@ export default function CreateEventPage() {
 
       const { error } = await supabase
         .from('events')
-        .insert({
-          org_id: user.id,
+        .update({
           title: validate.sanitizeInput(formData.title),
           description: validate.sanitizeInput(formData.description),
           short_description: validate.sanitizeInput(formData.short_description),
@@ -126,15 +175,17 @@ export default function CreateEventPage() {
           max_volunteers: formData.max_volunteers,
           volunteer_roles: rolesArray.map(role => validate.sanitizeInput(role)),
           social_tags: tagsArray.map(tag => validate.sanitizeInput(tag)),
-          status: 'published',
+          status: formData.status,
         })
+        .eq('id', eventId)
+        .eq('org_id', user.id)
 
       if (error) throw error
 
-      toast.success('Event created successfully! 🎉')
+      toast.success('Event updated successfully!')
       router.push('/org/dashboard')
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create event')
+      toast.error(error.message || 'Failed to update event')
     } finally {
       setLoading(false)
     }
@@ -144,7 +195,7 @@ export default function CreateEventPage() {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  if (!user) {
+  if (fetching) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
@@ -158,7 +209,16 @@ export default function CreateEventPage() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-6">Create New Event</h1>
+          <div className="flex items-center gap-4 mb-6">
+            <Link href="/org/dashboard">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            </Link>
+            <h1 className="text-3xl font-bold text-white">Edit Event</h1>
+          </div>
+
           <form onSubmit={handleSubmit} className="bg-zinc-900 rounded border border-zinc-800 p-6 space-y-6">
             <div>
               <label className="block text-sm font-medium text-white mb-2">
@@ -172,6 +232,20 @@ export default function CreateEventPage() {
                 required
                 className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">
+                Status
+              </label>
+              <select
+                value={formData.status}
+                onChange={(e) => handleInputChange('status', e.target.value)}
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-white transition-all"
+              >
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+              </select>
             </div>
 
             <div>
@@ -246,11 +320,27 @@ export default function CreateEventPage() {
 
             <div>
               <label className="block text-sm font-medium text-white mb-2">
+                Skills/Tags
+              </label>
+              <input
+                type="text"
+                placeholder="e.g., teamwork, outdoor, communication (comma separated)"
+                value={formData.social_tags}
+                onChange={(e) => handleInputChange('social_tags', e.target.value)}
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
+              />
+              <p className="text-xs text-zinc-500 mt-1">
+                Add tags to help volunteers find your event
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">
                 Location *
               </label>
               <input
                 type="text"
-                placeholder="Full address or venue name"
+                placeholder="e.g., Bondi Beach, Sydney NSW"
                 value={formData.location_address}
                 onChange={(e) => handleInputChange('location_address', e.target.value)}
                 required
@@ -258,7 +348,7 @@ export default function CreateEventPage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-white mb-2">
                   Start Date & Time *
@@ -268,9 +358,10 @@ export default function CreateEventPage() {
                   value={formData.start_datetime}
                   onChange={(e) => handleInputChange('start_datetime', e.target.value)}
                   required
-                  className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-white transition-all"
+                  className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-white mb-2">
                   End Date & Time *
@@ -280,48 +371,39 @@ export default function CreateEventPage() {
                   value={formData.end_datetime}
                   onChange={(e) => handleInputChange('end_datetime', e.target.value)}
                   required
-                  className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-white transition-all"
+                  className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-white mb-2">
-                Maximum Volunteers
+                Maximum Volunteers *
               </label>
               <input
                 type="number"
                 min="1"
-                max="1000"
                 value={formData.max_volunteers}
                 onChange={(e) => handleInputChange('max_volunteers', parseInt(e.target.value))}
+                required
                 className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-white mb-2">
-                Social Tags
-              </label>
-              <input
-                type="text"
-                placeholder="food provided, music, fun, networking (comma separated)"
-                value={formData.social_tags}
-                onChange={(e) => handleInputChange('social_tags', e.target.value)}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
-              />
-              <p className="text-xs text-zinc-500 mt-1">
-                Add fun elements to attract students (e.g., "free pizza", "music", "networking")
-              </p>
+            <div className="flex gap-4 pt-4">
+              <Button 
+                type="submit" 
+                disabled={loading}
+                className="flex-1 bg-white text-black hover:bg-zinc-200"
+              >
+                {loading ? 'Updating...' : 'Update Event'}
+              </Button>
+              <Link href="/org/dashboard" className="flex-1">
+                <Button type="button" variant="secondary" className="w-full">
+                  Cancel
+                </Button>
+              </Link>
             </div>
-
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full p-4 bg-white text-black font-semibold rounded hover:bg-zinc-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Creating Event...' : 'Create Event'}
-            </button>
           </form>
         </div>
       </main>

@@ -2,190 +2,160 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { Building, LogIn } from 'lucide-react'
 
 export default function OrganizationAuthForm() {
-  const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [orgName, setOrgName] = useState('')
-  const [contactName, setContactName] = useState('')
-  const [contactPhone, setContactPhone] = useState('')
-  const [website, setWebsite] = useState('')
-  const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      
+      if (error) throw error
+      
+      // Check user type and redirect appropriately
+      if (data.user) {
+        const { data: userData, error: userFetchError } = await supabase
+          .from('users')
+          .select('user_type')
+          .eq('id', data.user.id)
+          .single()
         
-        if (error) throw error
-        
-        toast.success('Welcome back!')
-        setTimeout(() => {
-          window.location.href = '/org/dashboard'
-        }, 1000)
-      } else {
-        // Sign up
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-        })
-
-        if (error) {
-          console.error('Signup error:', error)
-          throw error
-        }
-
-        if (data.user) {
-          // Update user type to organization
-          const { error: updateError } = await supabase
+        // If no user record exists, create it as organization
+        if (!userData || userFetchError) {
+          const { error: insertError } = await supabase
             .from('users')
-            .update({ user_type: 'organization' })
-            .eq('id', data.user.id)
-
-          if (updateError) {
-            console.error('Error updating user type:', updateError)
-            // Continue anyway as this might be expected
-          }
-
-          // Create organization profile
-          const { error: profileError } = await supabase
-            .from('organization_profiles')
             .insert({
-              user_id: data.user.id,
-              org_name: orgName,
-              contact_person_name: contactName || null,
-              contact_phone: contactPhone || null,
-              website_url: website || null,
-              description: description || null,
-              contact_email: email, // Add the email field
+              id: data.user.id,
+              email: data.user.email!,
+              user_type: 'organization'
             })
-
-          if (profileError) {
-            console.error('Error creating organization profile:', profileError)
-            throw profileError
+          
+          if (insertError && insertError.code !== '23505') {
+            console.error('Error creating user record:', insertError)
           }
-
-          toast.success('Organization account created successfully!')
-          setTimeout(() => {
-            window.location.href = '/org/dashboard'
-          }, 1000)
+          
+          // Proceed to organization dashboard
+          toast.success('Welcome back!')
+          router.refresh()
+          router.push('/org/dashboard')
+          return
         }
+        
+        // Check if user is a student trying to use org login
+        if (userData.user_type === 'student') {
+          toast.error('This is an organization login. Please use the student login.')
+          await supabase.auth.signOut()
+          router.push('/auth/login')
+          return
+        }
+        
+        // User is an organization, proceed
+        toast.success('Welcome back!')
+        router.refresh()
+        router.push('/org/dashboard')
       }
     } catch (error: any) {
-      toast.error(error.message || 'An error occurred')
+      toast.error(error.message || 'Invalid email or password')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold">
-          {isLogin ? 'Organization Login' : 'Register Your Organization'}
-        </h1>
-        <p className="text-gray-600 mt-2">
-          {isLogin ? 'Access your organization dashboard' : 'Create events and find volunteers'}
+        <h2 className="text-2xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+          <Building className="h-6 w-6" />
+          Organization Login
+        </h2>
+        <p className="text-zinc-400 text-sm">
+          Sign in to manage your events and volunteers
         </p>
       </div>
 
-      <form onSubmit={handleAuth} className="space-y-4">
+      <form onSubmit={handleSignIn} className="space-y-4">
         <div>
-          <Input
+          <input
             type="email"
             placeholder="Organization Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded 
+                     text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
+                     transition-all"
           />
         </div>
 
         <div>
-          <Input
+          <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded 
+                     text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white 
+                     transition-all"
           />
         </div>
 
-        {!isLogin && (
-          <>
-            <div>
-              <Input
-                type="text"
-                placeholder="Organization Name"
-                value={orgName}
-                onChange={(e) => setOrgName(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <Input
-                type="text"
-                placeholder="Contact Person Name"
-                value={contactName}
-                onChange={(e) => setContactName(e.target.value)}
-              />
-            </div>
-            <div>
-              <Input
-                type="tel"
-                placeholder="Contact Phone"
-                value={contactPhone}
-                onChange={(e) => setContactPhone(e.target.value)}
-              />
-            </div>
-            <div>
-              <Input
-                type="url"
-                placeholder="Website URL (optional)"
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-              />
-            </div>
-            <div>
-              <textarea
-                className="w-full p-3 border rounded-md"
-                placeholder="Brief description of your organization"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-              />
-            </div>
-          </>
-        )}
+        <div className="flex justify-end">
+          <Link href="#" className="text-sm text-zinc-400 hover:text-white transition-colors">
+            Forgot password?
+          </Link>
+        </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Organization')}
-        </Button>
+        <button 
+          type="submit" 
+          disabled={loading}
+          className="w-full p-3 bg-white text-black font-semibold 
+                   rounded transition-opacity hover:opacity-90 disabled:opacity-50 
+                   disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          <LogIn className="h-4 w-4" />
+          {loading ? 'Signing In...' : 'Sign In'}
+        </button>
       </form>
 
-      <div className="text-center">
-        <button
-          type="button"
-          onClick={() => setIsLogin(!isLogin)}
-          className="text-blue-600 hover:text-blue-800 text-sm"
-        >
-          {isLogin
-            ? "Don't have an organization account? Register"
-            : 'Already have an organization account? Sign in'}
-        </button>
+      <div className="space-y-4">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-zinc-800"></div>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-zinc-900 px-2 text-zinc-400">New Organization?</span>
+          </div>
+        </div>
+
+        <Link href="/auth/org-signup">
+          <button className="w-full p-3 bg-transparent border border-zinc-800 text-white font-semibold 
+                         rounded hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
+            <Building className="h-4 w-4" />
+            Register Your Organization
+          </button>
+        </Link>
+
+        <div className="text-center text-sm text-zinc-400">
+          Are you a student volunteer?{' '}
+          <Link href="/auth/login" className="text-white hover:underline font-semibold">
+            Student login here
+          </Link>
+        </div>
       </div>
     </div>
   )

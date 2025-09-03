@@ -17,6 +17,7 @@ export default function EditProfilePage() {
   const [formData, setFormData] = useState({
     // Student fields
     full_name: '',
+    email: '',
     student_id: '',
     university: '',
     phone: '',
@@ -65,9 +66,16 @@ export default function EditProfilePage() {
             .single()
 
           if (profile) {
+            // Handle both old (first_name/last_name) and new (full_name) schema
+            const fullName = profile.full_name || 
+                           (profile.first_name && profile.last_name ? 
+                            `${profile.first_name} ${profile.last_name}`.trim() : 
+                            profile.first_name || profile.last_name || '')
+            
             setFormData({
               ...formData,
-              full_name: profile.full_name || '',
+              full_name: fullName,
+              email: user.email || '',
               student_id: profile.student_id || '',
               university: profile.university || '',
               phone: profile.phone || '',
@@ -111,8 +119,21 @@ export default function EditProfilePage() {
       if (!user) throw new Error(MESSAGES.ERROR.NOT_AUTHENTICATED)
 
       if (userType === 'student') {
-        // Validate phone if provided
-        if (formData.phone && !validate.phone(formData.phone)) {
+        // Validate required fields
+        if (!formData.full_name) {
+          toast.error('Full name is required')
+          setLoading(false)
+          return
+        }
+
+        if (!formData.phone) {
+          toast.error('Phone number is required for event organizers to contact you')
+          setLoading(false)
+          return
+        }
+
+        // Validate phone format
+        if (!validate.phone(formData.phone)) {
           toast.error('Please enter a valid Australian mobile number')
           setLoading(false)
           return
@@ -123,10 +144,17 @@ export default function EditProfilePage() {
           .map(i => i.trim())
           .filter(i => i.length > 0)
 
+        // Split full name into first and last name for backward compatibility
+        const nameParts = formData.full_name.trim().split(' ')
+        const firstName = nameParts[0] || ''
+        const lastName = nameParts.slice(1).join(' ') || ''
+
         const { error } = await supabase
           .from('student_profiles')
           .upsert({
             user_id: user.id,
+            first_name: validate.sanitizeInput(firstName),
+            last_name: validate.sanitizeInput(lastName),
             full_name: validate.sanitizeInput(formData.full_name),
             student_id: validate.sanitizeInput(formData.student_id),
             university: validate.sanitizeInput(formData.university),
@@ -215,15 +243,34 @@ export default function EditProfilePage() {
               <>
                 <div>
                   <label className="block text-sm font-medium text-white mb-2">
-                    Full Name
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     placeholder="John Doe"
                     value={formData.full_name}
                     onChange={(e) => handleInputChange('full_name', e.target.value)}
+                    required
                     className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="john@university.edu.au"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    required
+                    disabled
+                    className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all opacity-50 cursor-not-allowed"
+                  />
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Email cannot be changed
+                  </p>
                 </div>
 
                 <div>
@@ -254,15 +301,19 @@ export default function EditProfilePage() {
 
                 <div>
                   <label className="block text-sm font-medium text-white mb-2">
-                    Phone Number
+                    Phone Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="tel"
                     placeholder="0412 345 678"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
+                    required
                     className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
                   />
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Required for event organizers to contact you
+                  </p>
                 </div>
 
                 <div>
