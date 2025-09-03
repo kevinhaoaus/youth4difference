@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { LoadingSkeleton } from '@/components/ui/loading-skeleton'
 import { EventCard } from '@/components/ui/event-card'
 import { toast } from 'sonner'
-import { Calendar, MapPin, Users, Search, Filter, Clock, Tag, ArrowLeft } from 'lucide-react'
+import { Calendar, MapPin, Users, Search, Filter, Clock, Tag, ArrowLeft, User, Building } from 'lucide-react'
 import Link from 'next/link'
 import UserProfile from '@/components/ui/user-profile'
 import { Event } from '@/lib/types'
@@ -284,8 +284,17 @@ export default function EventsPage() {
             <h1 className="text-xl font-bold text-white">
               All Events
             </h1>
-            <div className="ml-auto">
-              <UserProfile />
+            <div className="ml-auto flex items-center gap-2">
+              <Link href="/auth/login">
+                <Button size="sm" variant="outline" className="border-zinc-800 text-white hover:bg-zinc-900 p-2">
+                  <User className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/auth/org-login">
+                <Button size="sm" className="bg-white text-black hover:bg-zinc-200 p-2">
+                  <Building className="h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
           
@@ -374,7 +383,20 @@ export default function EventsPage() {
                 All Events
               </h1>
             </div>
-            <UserProfile />
+            <div className="flex items-center gap-2">
+              <Link href="/auth/login">
+                <Button size="sm" variant="outline" className="border-zinc-800 text-white hover:bg-zinc-900">
+                  <User className="h-4 w-4 mr-2" />
+                  Member Login
+                </Button>
+              </Link>
+              <Link href="/auth/org-login">
+                <Button size="sm" className="bg-white text-black hover:bg-zinc-200">
+                  <Building className="h-4 w-4 mr-2" />
+                  Organization Login
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Desktop Filters */}
