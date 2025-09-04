@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
 import { LogOut, Building, Calendar, Plus, UserCircle } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface OrgHeaderProps {
   user: User
@@ -28,14 +29,23 @@ export default function OrgHeader({ user, profile }: OrgHeaderProps) {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-8">
             <Link href="/">
-              <div className="cursor-pointer hover:opacity-80 transition-opacity">
-                <h1 className="text-2xl font-bold text-white md:text-3xl">
-                  VolunteerVibe
-                </h1>
-                <p className="text-sm text-zinc-400 flex items-center gap-2">
-                  <Building className="h-4 w-4" />
-                  {profile?.org_name || 'Organization Dashboard'}
-                </p>
+              <div className="cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-3">
+                <Image 
+                  src="/youth4difference-logo.png" 
+                  alt="Youth4Difference Logo" 
+                  width={40} 
+                  height={40} 
+                  className="rounded-md"
+                />
+                <div>
+                  <h1 className="text-2xl font-bold text-white md:text-3xl">
+                    Youth4Difference
+                  </h1>
+                  <p className="text-sm text-zinc-400 flex items-center gap-2">
+                    <Building className="h-4 w-4" />
+                    {profile?.org_name || 'Organization Dashboard'}
+                  </p>
+                </div>
               </div>
             </Link>
             

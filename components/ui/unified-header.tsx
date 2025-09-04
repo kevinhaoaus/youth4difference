@@ -15,7 +15,7 @@ interface UnifiedHeaderProps {
 }
 
 export function UnifiedHeader({ 
-  title = 'VolunteerVibe',
+  title = 'Youth4Difference',
   showBackButton = false,
   backHref = ROUTES.HOME,
   showNotifications = false

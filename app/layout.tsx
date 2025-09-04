@@ -5,11 +5,16 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'VolunteerVibe - Social Volunteering Made Easy',
-  description: 'Connect with friends, discover local events, and make a difference in your community. Volunteering has never been this social and fun.',
-  keywords: 'volunteering, students, community, events, social, Sydney',
-  authors: [{ name: 'VolunteerVibe Team' }],
+  title: 'Youth4Difference - Empowering Youth Through Volunteering',
+  description: 'Connect with meaningful volunteer opportunities and make a difference in your community. Join Youth4Difference to discover events that match your passion.',
+  keywords: 'volunteering, youth, students, community, events, social, Sydney',
+  authors: [{ name: 'Youth4Difference Team' }],
   viewport: 'width=device-width, initial-scale=1',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png',
+  },
 }
 
 export default function RootLayout({

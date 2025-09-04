@@ -8,7 +8,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">
-              VolunteerVibe
+              Youth4Difference
             </h1>
             <p className="text-zinc-400 text-sm">Student Login</p>
           </div>
@@ -22,7 +22,7 @@ export default function LoginPage() {
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <h1 className="text-4xl font-bold text-white mb-4">
-                VolunteerVibe
+                Youth4Difference
               </h1>
               <p className="text-zinc-400">Connect with your community through volunteering</p>
             </div>

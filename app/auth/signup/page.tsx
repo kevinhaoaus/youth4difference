@@ -122,7 +122,7 @@ export default function StudentSignUpPage() {
         <Link href="/">
           <div className="flex items-center gap-2 text-white hover:text-zinc-300 transition-colors">
             <ArrowLeft className="h-5 w-5" />
-            <span className="text-2xl font-bold">VolunteerVibe</span>
+            <span className="text-2xl font-bold">Youth4Difference</span>
           </div>
         </Link>
         <div className="text-sm text-zinc-400">

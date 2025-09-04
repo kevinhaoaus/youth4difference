@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
 import { LogOut, MapPin, Calendar, Home, UserCircle } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface DashboardHeaderProps {
   user: User
@@ -27,9 +28,16 @@ export default function DashboardHeader({ user, profile }: DashboardHeaderProps)
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-8">
-            <Link href="/">
+            <Link href="/" className="flex items-center gap-3">
+              <Image 
+                src="/youth4difference-logo.png" 
+                alt="Youth4Difference Logo" 
+                width={40} 
+                height={40} 
+                className="rounded-md"
+              />
               <h1 className="text-2xl font-bold text-white md:text-3xl hover:text-zinc-300 transition-colors cursor-pointer">
-                VolunteerVibe
+                Youth4Difference
               </h1>
             </Link>
             <p className="hidden md:block text-sm text-zinc-400">

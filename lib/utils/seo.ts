@@ -8,20 +8,20 @@ interface SEOProps {
 }
 
 export function generateSEO({
-  title = 'VolunteerVibe',
+  title = 'Youth4Difference',
   description = 'Connect with meaningful volunteer opportunities in your community',
   image = '/og-image.png',
-  url = 'https://volunteervibe.com'
+  url = 'https://youth4difference.com'
 }: SEOProps = {}): Metadata {
-  const fullTitle = title === 'VolunteerVibe' ? title : `${title} | VolunteerVibe`
+  const fullTitle = title === 'Youth4Difference' ? title : `${title} | Youth4Difference`
   
   return {
     title: fullTitle,
     description,
     keywords: ['volunteering', 'community service', 'students', 'events', 'Sydney', 'Australia'],
-    authors: [{ name: 'VolunteerVibe Team' }],
-    creator: 'VolunteerVibe',
-    publisher: 'VolunteerVibe',
+    authors: [{ name: 'Youth4Difference Team' }],
+    creator: 'Youth4Difference',
+    publisher: 'Youth4Difference',
     robots: {
       index: true,
       follow: true,
@@ -37,13 +37,13 @@ export function generateSEO({
       title: fullTitle,
       description,
       url,
-      siteName: 'VolunteerVibe',
+      siteName: 'Youth4Difference',
       images: [
         {
           url: image,
           width: 1200,
           height: 630,
-          alt: 'VolunteerVibe - Volunteer Management Platform',
+          alt: 'Youth4Difference - Empowering Youth Through Volunteering',
         },
       ],
       locale: 'en_AU',
@@ -54,7 +54,7 @@ export function generateSEO({
       title: fullTitle,
       description,
       images: [image],
-      creator: '@volunteervibe',
+      creator: '@youth4difference',
     },
     alternates: {
       canonical: url,

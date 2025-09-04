@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { LoginDropdown } from '@/components/ui/login-dropdown'
 import { createClient } from '@/lib/supabase/client'
@@ -84,9 +85,18 @@ export default function HomePage() {
       <div className="md:hidden min-h-screen flex flex-col">
         {/* Clean Mobile Header */}
         <div className="p-4 flex justify-between items-center border-b border-zinc-900">
-          <h2 className="text-lg font-bold text-white">
-            VolunteerVibe
-          </h2>
+          <div className="flex items-center gap-2">
+            <Image 
+              src="/youth4difference-logo.png" 
+              alt="Youth4Difference Logo" 
+              width={32} 
+              height={32} 
+              className="rounded-md"
+            />
+            <h2 className="text-lg font-bold text-white">
+              Youth4Difference
+            </h2>
+          </div>
           {user ? (
             <div className="flex items-center gap-2">
               <Button 
@@ -113,9 +123,18 @@ export default function HomePage() {
 
         {/* Mobile Content */}
         <div className="flex-1 flex flex-col justify-center items-center p-6 text-center">
-          <h1 className="text-white text-4xl font-bold mb-4 tracking-tight">
-            VolunteerVibe
-          </h1>
+          <div className="flex flex-col items-center mb-4">
+            <Image 
+              src="/youth4difference-logo.png" 
+              alt="Youth4Difference Logo" 
+              width={80} 
+              height={80} 
+              className="rounded-lg mb-4"
+            />
+            <h1 className="text-white text-4xl font-bold tracking-tight">
+              Youth4Difference
+            </h1>
+          </div>
           <p className="text-zinc-400 text-base mb-12 leading-relaxed max-w-sm">
             Connect with meaningful volunteer opportunities.
             Find events that match your interests.
@@ -160,8 +179,17 @@ export default function HomePage() {
       {/* Desktop View */}
       <div className="hidden md:block">
         <nav className="p-6 flex justify-between items-center border-b border-zinc-900">
-          <div className="text-2xl font-bold text-white">
-            VolunteerVibe
+          <div className="flex items-center gap-3">
+            <Image 
+              src="/youth4difference-logo.png" 
+              alt="Youth4Difference Logo" 
+              width={40} 
+              height={40} 
+              className="rounded-md"
+            />
+            <div className="text-2xl font-bold text-white">
+              Youth4Difference
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/events">
