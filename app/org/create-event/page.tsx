@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { validate } from '@/lib/utils/validation'
 import { MESSAGES, CATEGORIES } from '@/lib/constants'
 import OrgHeader from '@/components/org/header'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 export default function CreateEventPage() {
   const [loading, setLoading] = useState(false)
@@ -27,6 +28,7 @@ export default function CreateEventPage() {
     max_volunteers: 10,
     volunteer_roles: '',
     social_tags: '',
+    event_image_url: '',
   })
   const [charCount, setCharCount] = useState(0)
   
@@ -126,6 +128,7 @@ export default function CreateEventPage() {
           max_volunteers: formData.max_volunteers,
           volunteer_roles: rolesArray.map(role => validate.sanitizeInput(role)),
           social_tags: tagsArray.map(tag => validate.sanitizeInput(tag)),
+          event_image_url: formData.event_image_url,
           status: 'published',
         })
 
@@ -227,6 +230,15 @@ export default function CreateEventPage() {
                 rows={4}
               />
             </div>
+
+            <ImageUpload
+              currentImageUrl={formData.event_image_url}
+              onUpload={(url) => handleInputChange('event_image_url', url)}
+              onError={(error) => toast.error(error)}
+              bucket="event-images"
+              filePrefix="event-img"
+              label="Event Image"
+            />
 
             <div>
               <label className="block text-sm font-medium text-white mb-2">

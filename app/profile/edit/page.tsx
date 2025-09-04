@@ -10,6 +10,7 @@ import { ArrowLeft, Save, User } from 'lucide-react'
 import Link from 'next/link'
 import { validate } from '@/lib/utils/validation'
 import { MESSAGES } from '@/lib/constants'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 export default function EditProfilePage() {
   const [loading, setLoading] = useState(false)
@@ -29,6 +30,7 @@ export default function EditProfilePage() {
     contact_phone: '',
     contact_email: '',
     website_url: '',
+    logo_url: '',
     description: '',
   })
   
@@ -99,6 +101,7 @@ export default function EditProfilePage() {
               contact_phone: profile.contact_phone || '',
               contact_email: profile.contact_email || '',
               website_url: profile.website_url || '',
+              logo_url: profile.logo_url || '',
               description: profile.description || '',
             })
           }
@@ -193,6 +196,7 @@ export default function EditProfilePage() {
             contact_phone: formData.contact_phone,
             contact_email: formData.contact_email,
             website_url: formData.website_url,
+            logo_url: formData.logo_url,
             description: validate.sanitizeInput(formData.description),
           })
 
@@ -357,6 +361,15 @@ export default function EditProfilePage() {
                     className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
                   />
                 </div>
+
+                <ImageUpload
+                  currentImageUrl={formData.logo_url}
+                  onUpload={(url) => handleInputChange('logo_url', url)}
+                  onError={(error) => toast.error(error)}
+                  bucket="organization-logos"
+                  filePrefix="org-logo"
+                  label="Organization Logo"
+                />
 
                 <div>
                   <label className="block text-sm font-medium text-white mb-2">

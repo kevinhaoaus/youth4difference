@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { validate } from '@/lib/utils/validation'
 import { MESSAGES } from '@/lib/constants'
 import OrgHeader from '@/components/org/header'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 interface EventFormData {
   title: string
@@ -22,6 +23,7 @@ interface EventFormData {
   max_volunteers: number
   volunteer_roles: string
   social_tags: string
+  event_image_url: string
   status: string
 }
 
@@ -47,6 +49,7 @@ export default function EditEventPage() {
     max_volunteers: 10,
     volunteer_roles: '',
     social_tags: '',
+    event_image_url: '',
     status: 'published'
   })
 
@@ -98,6 +101,7 @@ export default function EditEventPage() {
           max_volunteers: eventData.max_volunteers || 10,
           volunteer_roles: eventData.volunteer_roles?.join(', ') || '',
           social_tags: eventData.social_tags?.join(', ') || '',
+          event_image_url: eventData.event_image_url || '',
           status: eventData.status || 'published'
         })
         
@@ -175,6 +179,7 @@ export default function EditEventPage() {
           max_volunteers: formData.max_volunteers,
           volunteer_roles: rolesArray.map(role => validate.sanitizeInput(role)),
           social_tags: tagsArray.map(tag => validate.sanitizeInput(tag)),
+          event_image_url: formData.event_image_url,
           status: formData.status,
         })
         .eq('id', eventId)
@@ -301,6 +306,15 @@ export default function EditEventPage() {
                 rows={4}
               />
             </div>
+
+            <ImageUpload
+              currentImageUrl={formData.event_image_url}
+              onUpload={(url) => handleInputChange('event_image_url', url)}
+              onError={(error) => toast.error(error)}
+              bucket="event-images"
+              filePrefix="event-img"
+              label="Event Image"
+            />
 
             <div>
               <label className="block text-sm font-medium text-white mb-2">
